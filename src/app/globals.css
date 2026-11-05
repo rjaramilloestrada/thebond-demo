@@ -1,0 +1,191 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+/*
+ * Tailwind v4 (config CSS-first). `inline` hace que las utilidades lean la
+ * variable de tokens.css en tiempo de ejecución, así cambiar la marca = editar
+ * un solo archivo.
+ */
+@theme inline {
+  --color-*: initial;
+  --color-bond-olive: var(--bond-olive);
+  --color-bond-moss: var(--bond-moss);
+  --color-bond-cream: var(--bond-cream);
+  --color-bond-sand: var(--bond-sand);
+  --color-bond-ember: var(--bond-ember);
+  --color-bond-sun: var(--bond-sun);
+  --color-bond-night: var(--bond-night);
+  --color-bond-butter: var(--bond-butter);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-display: var(--font-bodoni), "Bodoni 72", "Didot", Georgia, serif;
+  --font-condensed: var(--font-archivo), "Arial Narrow", Impact, sans-serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-sm: var(--bond-radius-sm);
+  --radius-md: var(--bond-radius-md);
+
+  --ease-editorial: var(--bond-ease);
+}
+
+/* Escala fluida (clamp). 390 px → 1440 px */
+@theme {
+  --text-display-xl: clamp(4.25rem, 0.5rem + 9.5vw, 10rem);
+  --text-display-xl--line-height: 0.88;
+  --text-display-xl--letter-spacing: -0.02em;
+  --text-display-l: clamp(2.5rem, 0.5rem + 7vw, 7rem);
+  --text-display-l--line-height: 0.92;
+  --text-display-l--letter-spacing: -0.015em;
+  --text-display-m: clamp(2rem, 1.2rem + 3.4vw, 4.25rem);
+  --text-display-m--line-height: 1;
+  --text-display-m--letter-spacing: -0.01em;
+  --text-heading: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
+  --text-heading--line-height: 1.1;
+  --text-lead: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+  --text-lead--line-height: 1.5;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1.4;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    background: var(--bond-cream);
+  }
+  body {
+    background: var(--bond-cream);
+    color: var(--bond-night);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--bond-butter);
+    color: var(--bond-night);
+  }
+
+  /* Foco visible en la paleta de marca */
+  :focus-visible {
+    outline: var(--focus-width) solid var(--focus-ring);
+    outline-offset: var(--focus-offset);
+    border-radius: var(--bond-radius-sm);
+  }
+  .surface-dark {
+    --focus-ring: var(--focus-on-dark);
+  }
+}
+
+/* Roles tipográficos del brief 3.2 */
+@utility display-serif {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-optical-sizing: auto;
+}
+@utility accent-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  text-transform: none;
+  font-weight: 400;
+}
+@utility display-sans {
+  font-family: var(--font-condensed);
+  font-weight: 800;
+  font-variation-settings: "wdth" 66;
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+}
+@utility label-caps {
+  font-family: var(--font-condensed);
+  font-size: var(--text-label);
+  font-weight: 600;
+  font-variation-settings: "wdth" 100;
+  text-transform: uppercase;
+  letter-spacing: var(--label-tracking);
+  line-height: 1.4;
+}
+@utility container-editorial {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Grano: SVG feTurbulence inline, sin imagen extra */
+@utility grain {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.22;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.4 -0.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    background-size: 220px 220px;
+  }
+}
+
+/* Sunset: sol que se pone (rojo, naranja, negro), estático por defecto */
+@utility sunset {
+  background:
+    radial-gradient(120% 90% at 50% 112%, var(--bond-butter) 0%, var(--bond-sun) 18%, var(--bond-ember) 42%, transparent 72%),
+    linear-gradient(180deg, var(--bond-night) 0%, var(--bond-night) 38%, var(--bond-moss) 100%);
+}
+
+/* Sunset animado: capa muy lenta detrás del titular */
+@keyframes sunset-drift {
+  0% {
+    transform: translate3d(-4%, 2%, 0) scale(1.08);
+  }
+  50% {
+    transform: translate3d(4%, -3%, 0) scale(1.18);
+  }
+  100% {
+    transform: translate3d(-4%, 2%, 0) scale(1.08);
+  }
+}
+.sunset-sun {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    closest-side at 50% 78%,
+    var(--bond-butter) 0%,
+    var(--bond-sun) 22%,
+    var(--bond-ember) 52%,
+    transparent 100%
+  );
+  animation: sunset-drift var(--dur-sunset) ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Marquee de ejemplo (Fase 2 lo usará de verdad) y utilidades de papel */
+.paper-edge {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bond-night) 14%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .sunset-sun {
+    animation: none;
+  }
+}

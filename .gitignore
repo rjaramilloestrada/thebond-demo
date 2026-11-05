@@ -1,0 +1,29 @@
+# dependencias
+node_modules/
+
+# next
+.next/
+out/
+next-env.d.ts
+
+# build / tooling
+*.tsbuildinfo
+coverage/
+.vercel/
+.open-next/
+.wrangler/
+
+# env
+.env
+.env.*
+!.env.example
+
+# sistema / editor
+.DS_Store
+*.log
+npm-debug.log*
+.idea/
+.vscode/
+
+# archivos temporales de handoff
+.plan-fase-*.md

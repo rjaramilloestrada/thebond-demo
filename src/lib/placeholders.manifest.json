@@ -1,0 +1,294 @@
+{
+  "widths": [
+    640,
+    1280,
+    1920
+  ],
+  "assets": [
+    {
+      "name": "hero-edicion",
+      "pending": "[[PENDIENTE: foto de clase en ONNA]]",
+      "aspect": "16/9",
+      "widths": [
+        {
+          "width": 640,
+          "height": 360
+        },
+        {
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        }
+      ]
+    },
+    {
+      "name": "galeria-001-01",
+      "pending": "[[PENDIENTE: foto 1 de la ed. 001 en alta resolución]]",
+      "aspect": "4/5",
+      "widths": [
+        {
+          "width": 640,
+          "height": 800
+        },
+        {
+          "width": 1280,
+          "height": 1600
+        },
+        {
+          "width": 1920,
+          "height": 2400
+        }
+      ]
+    },
+    {
+      "name": "galeria-001-02",
+      "pending": "[[PENDIENTE: foto 2 de la ed. 001 en alta resolución]]",
+      "aspect": "4/5",
+      "widths": [
+        {
+          "width": 640,
+          "height": 800
+        },
+        {
+          "width": 1280,
+          "height": 1600
+        },
+        {
+          "width": 1920,
+          "height": 2400
+        }
+      ]
+    },
+    {
+      "name": "galeria-001-03",
+      "pending": "[[PENDIENTE: foto 3 de la ed. 001 en alta resolución]]",
+      "aspect": "1/1",
+      "widths": [
+        {
+          "width": 640,
+          "height": 640
+        },
+        {
+          "width": 1280,
+          "height": 1280
+        },
+        {
+          "width": 1920,
+          "height": 1920
+        }
+      ]
+    },
+    {
+      "name": "galeria-001-04",
+      "pending": "[[PENDIENTE: foto 4 de la ed. 001 en alta resolución]]",
+      "aspect": "4/5",
+      "widths": [
+        {
+          "width": 640,
+          "height": 800
+        },
+        {
+          "width": 1280,
+          "height": 1600
+        },
+        {
+          "width": 1920,
+          "height": 2400
+        }
+      ]
+    },
+    {
+      "name": "galeria-001-05",
+      "pending": "[[PENDIENTE: foto 5 de la ed. 001 en alta resolución]]",
+      "aspect": "4/5",
+      "widths": [
+        {
+          "width": 640,
+          "height": 800
+        },
+        {
+          "width": 1280,
+          "height": 1600
+        },
+        {
+          "width": 1920,
+          "height": 2400
+        }
+      ]
+    },
+    {
+      "name": "galeria-001-06",
+      "pending": "[[PENDIENTE: foto 6 de la ed. 001 en alta resolución]]",
+      "aspect": "1/1",
+      "widths": [
+        {
+          "width": 640,
+          "height": 640
+        },
+        {
+          "width": 1280,
+          "height": 1280
+        },
+        {
+          "width": 1920,
+          "height": 1920
+        }
+      ]
+    },
+    {
+      "name": "sede-onna",
+      "pending": "[[PENDIENTE: foto o mapa estático de la sede]]",
+      "aspect": "3/2",
+      "widths": [
+        {
+          "width": 640,
+          "height": 427
+        },
+        {
+          "width": 1280,
+          "height": 853
+        },
+        {
+          "width": 1920,
+          "height": 1280
+        }
+      ]
+    },
+    {
+      "name": "speaker-01",
+      "pending": "[[PENDIENTE: foto del speaker o coach 1]]",
+      "aspect": "4/5",
+      "widths": [
+        {
+          "width": 640,
+          "height": 800
+        },
+        {
+          "width": 1280,
+          "height": 1600
+        },
+        {
+          "width": 1920,
+          "height": 2400
+        }
+      ]
+    },
+    {
+      "name": "speaker-02",
+      "pending": "[[PENDIENTE: foto del speaker o coach 2]]",
+      "aspect": "4/5",
+      "widths": [
+        {
+          "width": 640,
+          "height": 800
+        },
+        {
+          "width": 1280,
+          "height": 1600
+        },
+        {
+          "width": 1920,
+          "height": 2400
+        }
+      ]
+    },
+    {
+      "name": "speaker-03",
+      "pending": "[[PENDIENTE: foto del speaker o coach 3]]",
+      "aspect": "4/5",
+      "widths": [
+        {
+          "width": 640,
+          "height": 800
+        },
+        {
+          "width": 1280,
+          "height": 1600
+        },
+        {
+          "width": 1920,
+          "height": 2400
+        }
+      ]
+    },
+    {
+      "name": "logo-marca-fit101",
+      "pending": "[[PENDIENTE: logo de FIT101 (permiso y archivo)]]",
+      "aspect": "3/2",
+      "widths": [
+        {
+          "width": 640,
+          "height": 427
+        },
+        {
+          "width": 1280,
+          "height": 853
+        },
+        {
+          "width": 1920,
+          "height": 1280
+        }
+      ]
+    },
+    {
+      "name": "logo-marca-01",
+      "pending": "[[PENDIENTE: logo de la marca aliada 1 (permiso y archivo)]]",
+      "aspect": "3/2",
+      "widths": [
+        {
+          "width": 640,
+          "height": 427
+        },
+        {
+          "width": 1280,
+          "height": 853
+        },
+        {
+          "width": 1920,
+          "height": 1280
+        }
+      ]
+    },
+    {
+      "name": "logo-marca-02",
+      "pending": "[[PENDIENTE: logo de la marca aliada 2 (permiso y archivo)]]",
+      "aspect": "3/2",
+      "widths": [
+        {
+          "width": 640,
+          "height": 427
+        },
+        {
+          "width": 1280,
+          "height": 853
+        },
+        {
+          "width": 1920,
+          "height": 1280
+        }
+      ]
+    },
+    {
+      "name": "logo-marca-03",
+      "pending": "[[PENDIENTE: logo de la marca aliada 3 (permiso y archivo)]]",
+      "aspect": "3/2",
+      "widths": [
+        {
+          "width": 640,
+          "height": 427
+        },
+        {
+          "width": 1280,
+          "height": 853
+        },
+        {
+          "width": 1920,
+          "height": 1280
+        }
+      ]
+    }
+  ]
+}
