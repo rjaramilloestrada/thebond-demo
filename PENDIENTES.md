@@ -34,11 +34,24 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 | 19 | Aforo real de la ed. 002 y reparto por tipo (hoy 60 de ejemplo: 40 + 20) | `src/seed/seed.ts` → ed. 002 `capacity`, `tt-002-*.capacity` |
 | 20 | Campos por asistente definitivos de la ed. 002 (talla de camiseta y nivel son ejemplos del brief; sus opciones son genéricas) | `src/seed/seed.ts` → `attendeeFields` |
 | 21 | Nombre de la clienta para el usuario precargado del panel `/admin` | Aún no aparece (Fase 5) |
-| 22 | Foto o mapa estático de la sede y dirección para la sección "Sede" | `public/placeholders/sede-onna` (Fase 2) |
+| 22 | Foto o mapa estático de la sede y dirección para la sección "Sede" | `public/placeholders/sede-onna`, `src/components/edition/Venue.tsx` (Fase 2). Se muestra con la etiqueta "Mapa estático · provisional"; no se usa ninguna API de mapas |
 | 23 | Alcance real de la ed. 002: confirmar que "Your ticket includes" (experiencias, BAG, TABLE, LUCKY BOND) aplica igual que en la 001 | `src/seed/seed.ts` → `includes` |
 | 24 | Textos de FAQ definitivos (las preguntas son del demo; las respuestas son pendiente) | `src/seed/seed.ts` → ed. 002 `faq` |
 | 25 | Radios de borde de la marca (no hay regla; hoy 2 a 4 px) | `src/styles/tokens.css` → `--bond-radius-*` |
 | 26 | Cifras de las órdenes, check-ins y lista de espera semilla (datos de demostración con nombres ficticios, no ventas reales) | `src/seed/seed.ts` → `addOrder`, `waitlist` |
+
+## B2. Nuevos pendientes detectados en la Fase 2
+
+| # | Pendiente | Dónde aparece |
+|---|---|---|
+| 27 | Textos nuevos de interfaz redactados por IGNIS (no son frases del brief): bajada del hero del home ("THE BOND es la wellness community de Guayaquil: ediciones numeradas para moverte, conectar y pertenecer."), títulos de sección ("Elige tu entrada", "El cronograma", "La sede", "La galería", "Preguntas frecuentes", "Ediciones pasadas") y avisos. Confirmar tono con la clienta | `src/components/home/HomeHero.tsx`, `src/components/edition/EditionPage.tsx`, `Schedule.tsx`, `Venue.tsx`, `Gallery.tsx`, `Faq.tsx`, `src/components/home/Archive.tsx` |
+| 28 | Imagen Open Graph real para compartir (hoy se usa el placeholder `hero-edicion` / `galeria-001-01`) | `src/lib/site.ts` (`OG_IMAGE`), `src/app/layout.tsx`, `src/app/(public)/ediciones/[slug]/page.tsx` |
+| 29 | Ícono del sitio (favicon): hoy es un anillo provisional generado por `npm run icon`; falta el monograma BO oficial | `src/app/icon.png`, `scripts/generate-icon.mjs` |
+| 30 | URL pública del sitio (`NEXT_PUBLIC_SITE_URL`): hasta tener el dominio (#7) canonical, sitemap y robots usan `http://localhost:3000` | `src/lib/site.ts`, `src/app/robots.ts`, `src/app/sitemap.ts` |
+| 31 | **Privacidad del demo en el deploy (Fase 7).** Por decisión de Rafa el código ya no lleva `noindex` y `robots.txt` permite el rastreo. Antes de compartir la URL con la clienta hay que proteger el acceso en el hosting (contraseña o acceso privado) o volver a poner `noindex` | `src/app/layout.tsx`, `src/app/robots.ts`, CLAUDE.md (regla 13) |
+| 32 | Selector de entradas deshabilitado: cantidad, cupón y "Continuar" se activan en la Fase 3 | `src/components/edition/TicketSelector.tsx` |
+| 33 | El aviso a la lista de espera cuando se cancela una orden queda para la Fase 4; hoy el formulario solo guarda la entrada | `src/components/edition/WaitlistForm.tsx` |
+| 34 | Cronograma de la ed. 002: la fila sigue como `[[PENDIENTE: hora]]` / `[[PENDIENTE: cronograma de la ed. 002]]` (ya en #15) | `src/components/edition/Schedule.tsx` |
 
 ## C. Decisiones técnicas para Rafa (no son datos de la clienta)
 

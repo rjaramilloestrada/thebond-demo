@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cedulaCheckDigit, isValidCedula, isValidRuc, validateTaxId } from "./validation";
+import { cedulaCheckDigit, isValidCedula, isValidEmail, isValidRuc, validateTaxId } from "./validation";
 
 describe("cédula ecuatoriana (10 dígitos, módulo 10)", () => {
   it("acepta una cédula con dígito verificador correcto", () => {
@@ -67,5 +67,17 @@ describe("validateTaxId", () => {
     expect(!bad.valid && bad.kind).toBe("cedula");
     const len = validateTaxId("12345");
     expect(!len.valid && len.message).toMatch(/10 dígitos/);
+  });
+});
+
+describe("isValidEmail", () => {
+  it("acepta correos con formato válido", () => {
+    expect(isValidEmail("asistente01@ejemplo.com")).toBe(true);
+    expect(isValidEmail("  a.b+c@dominio.ec ")).toBe(true);
+  });
+  it("rechaza formatos inválidos", () => {
+    for (const v of ["", "sin-arroba", "a@b", "a@@b.com", "a b@c.com", "@c.com", "a@.com"]) {
+      expect(isValidEmail(v)).toBe(false);
+    }
   });
 });

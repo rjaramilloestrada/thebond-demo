@@ -95,3 +95,13 @@ export function validateTaxId(input: string): TaxIdResult {
     message: "La cédula tiene 10 dígitos y el RUC tiene 13.",
   };
 }
+
+/* ───────────── Contacto ───────────── */
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** Formato razonable de correo (no verifica que exista). */
+export function isValidEmail(value: string): boolean {
+  const v = value.trim();
+  return v.length <= 254 && EMAIL_RE.test(v);
+}

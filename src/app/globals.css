@@ -31,9 +31,15 @@
 
 /* Escala fluida (clamp). 390 px → 1440 px */
 @theme {
+  --text-display-hero: clamp(3rem, 0.5rem + 13vw, 10rem);
+  --text-display-hero--line-height: 0.88;
+  --text-display-hero--letter-spacing: -0.02em;
   --text-display-xl: clamp(4.25rem, 0.5rem + 9.5vw, 10rem);
   --text-display-xl--line-height: 0.88;
   --text-display-xl--letter-spacing: -0.02em;
+  --text-display-xl-long: clamp(3.1rem, 0.5rem + 8vw, 8rem);
+  --text-display-xl-long--line-height: 0.9;
+  --text-display-xl-long--letter-spacing: -0.015em;
   --text-display-l: clamp(2.5rem, 0.5rem + 7vw, 7rem);
   --text-display-l--line-height: 0.92;
   --text-display-l--letter-spacing: -0.015em;
@@ -79,6 +85,9 @@
   }
   .surface-dark {
     --focus-ring: var(--focus-on-dark);
+  }
+  .surface-mid {
+    --focus-ring: var(--focus-on-mid);
   }
 }
 
@@ -158,7 +167,7 @@
   position: absolute;
   inset: -20%;
   background: radial-gradient(
-    closest-side at 50% 78%,
+    closest-side at var(--sun-x, 50%) var(--sun-y, 78%),
     var(--bond-butter) 0%,
     var(--bond-sun) 22%,
     var(--bond-ember) 52%,
@@ -168,9 +177,121 @@
   will-change: transform;
 }
 
-/* Marquee de ejemplo (Fase 2 lo usará de verdad) y utilidades de papel */
 .paper-edge {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bond-night) 14%, transparent);
+}
+
+/* Velo inferior del hero: el texto chico nunca queda sobre el sol */
+.hero-scrim {
+  background: linear-gradient(
+    to top,
+    var(--bond-night) 0%,
+    color-mix(in srgb, var(--bond-night) 82%, transparent) 24%,
+    transparent 56%
+  );
+}
+
+/* Fondo de "Bonding with": brasa ember sobre night */
+.bonding-bg {
+  background:
+    radial-gradient(90% 120% at 50% 135%, color-mix(in srgb, var(--bond-ember) 60%, var(--bond-night)) 0%, transparent 70%),
+    var(--bond-night);
+}
+
+/*
+ * Entrada de titulares con CSS puro: se ve desde el primer render, sin esperar
+ * a JavaScript (LCP). Solo transform y opacity.
+ */
+@keyframes line-rise {
+  from {
+    transform: translate3d(0, 108%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes soft-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.hero-line {
+  display: block;
+  overflow: hidden;
+  padding: 0 0.04em 0.22em 0.08em;
+  margin: 0 0 -0.22em -0.08em;
+}
+.hero-line > span {
+  display: block;
+  animation: line-rise calc(var(--dur-slow) * 1.3) var(--bond-ease) both;
+  animation-delay: calc(var(--i, 0) * 120ms);
+}
+.hero-fade {
+  animation: soft-rise var(--dur-slow) var(--bond-ease) both;
+  animation-delay: calc(var(--d, 0) * 1ms + 350ms);
+}
+
+/* Marquee de marcas (CSS puro, pausa en hover, foco y con el botón) */
+@keyframes marquee-scroll {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.marquee {
+  overflow: hidden;
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 70s linear infinite;
+  will-change: transform;
+}
+.marquee-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 3rem;
+  padding-right: 3rem;
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track,
+.marquee[data-paused="true"] .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Lenis: el scroll suave reemplaza al nativo */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+html.lenis {
+  scroll-behavior: auto;
+}
+
+/* La etiqueta DEMO sube sobre la barra fija de compra (solo móvil) */
+.demo-badge {
+  transition: transform var(--dur-base) var(--bond-ease);
+}
+@media (max-width: 47.99rem) {
+  body:has([data-sticky-cta][data-visible="true"]) .demo-badge {
+    transform: translate3d(0, -4.75rem, 0);
+  }
+}
+
+/* Marca del acordeón <details> */
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+details[open] .details-plus {
+  transform: rotate(45deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -185,7 +306,30 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .sunset-sun {
+  .sunset-sun,
+  .hero-line > span,
+  .hero-fade {
     animation: none;
+  }
+  /* Marquee: lista estática, sin duplicado */
+  .marquee-track {
+    animation: none;
+    width: auto;
+    flex-wrap: wrap;
+  }
+  .marquee-group {
+    flex-wrap: wrap;
+    row-gap: 2rem;
+    padding-right: 0;
+  }
+  .marquee-dup,
+  .marquee-extra,
+  .marquee-lead,
+  .marquee-pause {
+    display: none;
+  }
+  .demo-badge,
+  .details-plus {
+    transition: none;
   }
 }

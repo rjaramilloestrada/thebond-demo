@@ -1,7 +1,13 @@
 import Link from "next/link";
+import { nextEdition, pastEditions } from "@/domain/selectors";
+import { seed } from "@/seed/seed";
 import { Monogram } from "./Monogram";
 
 export function Footer() {
+  const { editions } = seed();
+  const next = nextEdition(editions);
+  const past = pastEditions(editions);
+  const linkClass = "inline-flex min-h-8 w-fit items-center underline-offset-4 hover:underline";
   return (
     <footer className="surface-dark bg-bond-night text-bond-cream">
       <div className="container-editorial flex flex-col gap-10 py-16 md:flex-row md:items-end md:justify-between">
@@ -12,11 +18,21 @@ export function Footer() {
           </p>
           <p className="label-caps text-bond-sand">The Bond · A wellness community</p>
         </div>
-        <nav aria-label="Pie de página" className="flex flex-col gap-3 text-sm">
-          <Link href="/" className="w-fit underline-offset-4 hover:underline">
+        <nav aria-label="Pie de página" className="flex flex-col gap-1 text-sm">
+          <Link href="/" className={linkClass}>
             Inicio
           </Link>
-          <Link href="/tokens" className="w-fit underline-offset-4 hover:underline">
+          {next && (
+            <Link href={`/ediciones/${next.slug}`} className={linkClass}>
+              Próxima edición
+            </Link>
+          )}
+          {past.map((e) => (
+            <Link key={e.id} href={`/ediciones/${e.slug}`} className={linkClass}>
+              Edición {e.number}
+            </Link>
+          ))}
+          <Link href="/tokens" className={linkClass}>
             Sistema visual
           </Link>
         </nav>

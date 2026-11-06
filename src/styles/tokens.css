@@ -18,6 +18,8 @@
   /* Foco: anillo de 2 px. night sobre claros, sun sobre oscuros */
   --focus-on-light: var(--bond-night);
   --focus-on-dark: var(--bond-sun);
+  /* olive y moss: sun no alcanza 3:1, se usa butter */
+  --focus-on-mid: var(--bond-butter);
   --focus-ring: var(--focus-on-light);
   --focus-width: 2px;
   --focus-offset: 3px;

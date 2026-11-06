@@ -3,6 +3,7 @@ import { Archivo, Bodoni_Moda, Inter } from "next/font/google";
 import { DemoBadge } from "@/components/brand/DemoBadge";
 import { Footer } from "@/components/brand/Footer";
 import { StoreHydrator } from "@/components/StoreHydrator";
+import { OG_IMAGE, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 /* Display serif de alto contraste (aproximación; [[PENDIENTE: fuentes oficiales]]) */
@@ -28,10 +29,23 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+/*
+ * SEO: el sitio es indexable por decisión de Rafa. La privacidad del demo se
+ * aplica en el deploy (Fase 7), no en el código: ver CLAUDE.md y PENDIENTES.md.
+ */
 export const metadata: Metadata = {
-  title: "THE BOND · Demo del portal de entradas",
-  description: "Move. Connect. Belong. Demo navegable del portal de entradas de THE BOND, con datos simulados.",
-  robots: { index: false, follow: false },
+  metadataBase: new URL(SITE_URL),
+  title: { default: `${SITE_NAME} · ${SITE_TAGLINE}`, template: `%s · ${SITE_NAME}` },
+  description:
+    "THE BOND, a wellness community de Guayaquil. Move. Connect. Belong. Demo navegable del portal de entradas, con datos simulados.",
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "es_EC",
+    images: [{ url: OG_IMAGE, width: 1280, height: 720, alt: "THE BOND (imagen provisional)" }],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
