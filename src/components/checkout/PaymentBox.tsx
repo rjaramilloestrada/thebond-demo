@@ -12,6 +12,7 @@ import { pay } from "@/services/checkout-service";
 import { barButton, CheckoutBar } from "./CheckoutBar";
 import { OrderSummary } from "./OrderSummary";
 import type { SummaryData } from "./summary";
+import { checkoutHref, confirmationHref } from "@/lib/routes";
 
 const TEST_CARD = { number: "4000 0000 0000 0000", expiry: "12/30", cvc: "123" } as const;
 
@@ -82,7 +83,7 @@ export function PaymentBox({
     onPayingChange(true);
     const result = await pay(order.id, draft);
     if (result.ok) {
-      router.push(`/comprar/${order.id}/confirmacion`);
+      router.push(confirmationHref(order.id));
       return;
     }
     setPaying(false);
@@ -98,7 +99,7 @@ export function PaymentBox({
         <div role="alert" className="paper-edge max-w-xl bg-bond-cream p-6" data-testid="datos-incompletos">
           <p className="display-serif text-heading">Faltan tus datos</p>
           <p className="mt-3 text-bond-olive">Antes de pagar necesitamos los datos de la compra y de cada asistente.</p>
-          <Link href={`/comprar/${order.id}`} className={`${buttonBase} ${buttonTones.night} mt-6 w-full sm:w-fit`}>
+          <Link href={checkoutHref(order.id)} className={`${buttonBase} ${buttonTones.night} mt-6 w-full sm:w-fit`}>
             Completar mis datos
           </Link>
         </div>
@@ -198,7 +199,7 @@ export function PaymentBox({
           </form>
 
           <p className="mt-6">
-            <Link href={`/comprar/${order.id}`} className="label-caps inline-flex min-h-11 items-center text-bond-night underline underline-offset-8">
+            <Link href={checkoutHref(order.id)} className="label-caps inline-flex min-h-11 items-center text-bond-night underline underline-offset-8">
               ← Volver a mis datos
             </Link>
           </p>

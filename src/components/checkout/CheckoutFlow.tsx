@@ -17,6 +17,7 @@ import { ExpiredModal } from "./ExpiredModal";
 import { PaymentBox } from "./PaymentBox";
 import { ReservationTimer } from "./ReservationTimer";
 import { buildSummary } from "./summary";
+import { confirmationHref, editionHref } from "@/lib/routes";
 
 function Notice({ title, children, href, cta }: { title: string; children: React.ReactNode; href: string; cta: string }) {
   return (
@@ -33,8 +34,8 @@ function Notice({ title, children, href, cta }: { title: string; children: React
 }
 
 /**
- * Pantallas 2 y 3 del flujo de compra en `/comprar/[orderId]`: datos y, con
- * `?paso=pago`, la caja de pagos. Lee la orden del store (se rehidrata tras el
+ * Pantallas 2 y 3 del flujo de compra en `/comprar?orden=<id>`: datos y, con
+ * `&paso=pago`, la caja de pagos. Lee la orden del store (se rehidrata tras el
  * primer render), muestra el contador de reserva y abre el aviso si la reserva
  * vence. Las escrituras de negocio van por `@/services/checkout-service`.
  */
@@ -77,7 +78,7 @@ export function CheckoutFlow({ orderId, step }: { orderId: string; step: "datos"
 
   const status = order?.status;
   useEffect(() => {
-    if (hydrated && status === "paid") router.replace(`/comprar/${orderId}/confirmacion`);
+    if (hydrated && status === "paid") router.replace(confirmationHref(orderId));
   }, [hydrated, status, orderId, router]);
 
   const onExpire = useCallback(() => {
@@ -85,7 +86,7 @@ export function CheckoutFlow({ orderId, step }: { orderId: string; step: "datos"
   }, [orderId]);
 
   const backToEdition = useCallback(() => {
-    router.push(edition ? `/ediciones/${edition.slug}` : "/");
+    router.push(edition ? editionHref(edition.slug) : "/");
   }, [router, edition]);
 
   if (!hydrated) {
@@ -122,7 +123,7 @@ export function CheckoutFlow({ orderId, step }: { orderId: string; step: "datos"
     return (
       <main id="contenido" className="min-h-svh bg-bond-cream">
         <CheckoutHeader current={2} title="Orden no disponible" edition={edition} />
-        <Notice title="Esta orden ya no está disponible" href={`/ediciones/${edition.slug}`} cta="Volver a la edición">
+        <Notice title="Esta orden ya no está disponible" href={editionHref(edition.slug)} cta="Volver a la edición">
           La orden fue cancelada. Puedes elegir tus entradas de nuevo.
         </Notice>
       </main>

@@ -3,7 +3,7 @@ import { Archivo, Bodoni_Moda, Inter } from "next/font/google";
 import { DemoBadge } from "@/components/brand/DemoBadge";
 import { Footer } from "@/components/brand/Footer";
 import { StoreHydrator } from "@/components/StoreHydrator";
-import { OG_IMAGE, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
+import { NOINDEX, OG_IMAGE, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 /* Display serif de alto contraste (aproximación; [[PENDIENTE: fuentes oficiales]]) */
@@ -30,8 +30,9 @@ const inter = Inter({
 });
 
 /*
- * SEO: el sitio es indexable por decisión de Rafa. La privacidad del demo se
- * aplica en el deploy (Fase 7), no en el código: ver CLAUDE.md y PENDIENTES.md.
+ * SEO: el sitio es indexable por decisión de Rafa (builds locales y de
+ * medición). Solo el build de GitHub Pages define NEXT_PUBLIC_NOINDEX=1 y emite
+ * `noindex,nofollow`: ver CLAUDE.md (regla 13) y PENDIENTES.md #31.
  */
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -39,6 +40,7 @@ export const metadata: Metadata = {
   description:
     "THE BOND, a wellness community de Guayaquil. Move. Connect. Belong. Demo navegable del portal de entradas, con datos simulados.",
   applicationName: SITE_NAME,
+  ...(NOINDEX ? { robots: { index: false, follow: false } } : {}),
   openGraph: {
     type: "website",
     siteName: SITE_NAME,

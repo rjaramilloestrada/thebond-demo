@@ -11,6 +11,7 @@ import { useHasHydrated } from "@/store/hydrate";
 import { OrderSummary } from "./OrderSummary";
 import { PrintedTicket } from "./PrintedTicket";
 import { buildSummary } from "./summary";
+import { checkoutHref, editionHref } from "@/lib/routes";
 
 function Slot() {
   return (
@@ -24,7 +25,7 @@ function Slot() {
  * Confirmación (posterior al pago): un ticket por asistente con QR único que
  * sale de una ranura. "Ver correo" y "Ver factura" quedan visibles pero
  * deshabilitados hasta la Fase 4. Si la orden no está pagada, vuelve a
- * `/comprar/[orderId]`.
+ * `/comprar?orden=<id>`.
  */
 export function ConfirmationView({ orderId }: { orderId: string }) {
   const router = useRouter();
@@ -60,7 +61,7 @@ export function ConfirmationView({ orderId }: { orderId: string }) {
 
   const unpaid = hydrated && order && order.status !== "paid";
   useEffect(() => {
-    if (unpaid) router.replace(`/comprar/${orderId}`);
+    if (unpaid) router.replace(checkoutHref(orderId));
   }, [unpaid, orderId, router]);
 
   const shell = "surface-dark grain relative isolate overflow-hidden bg-bond-night text-bond-cream";
@@ -136,7 +137,7 @@ export function ConfirmationView({ orderId }: { orderId: string }) {
           <div className="surface-dark">
             <OrderSummary data={summary} heading="Resumen de la orden" />
           </div>
-          <Link href={`/ediciones/${edition.slug}`} className={`${buttonBase} ${buttonTones.butter} w-full`}>
+          <Link href={editionHref(edition.slug)} className={`${buttonBase} ${buttonTones.butter} w-full`}>
             Volver a la edición
           </Link>
         </div>

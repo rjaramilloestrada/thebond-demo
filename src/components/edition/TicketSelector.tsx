@@ -19,6 +19,7 @@ import { selectionTotal, useSelectionStore } from "@/store/selection-store";
 import { useEditionLive } from "./useEditionLive";
 import { useReserve } from "./useReserve";
 import { WaitlistForm } from "./WaitlistForm";
+import { checkoutHref } from "@/lib/routes";
 
 function Price({ stage, className = "" }: { stage: PriceStage; className?: string }) {
   return (
@@ -85,7 +86,7 @@ function ResumeBanner({ editionId }: { editionId: string }) {
         Tienes una reserva en curso: {qty} {qty === 1 ? "entrada" : "entradas"}.{" "}
         <span className="font-medium">Vence en {formatClock(remaining)}.</span>
       </p>
-      <Link href={`/comprar/${order.id}`} className={`${buttonBase} ${buttonTones.night} md:shrink-0`}>
+      <Link href={checkoutHref(order.id)} className={`${buttonBase} ${buttonTones.night} md:shrink-0`}>
         Retomar mi compra
       </Link>
     </div>

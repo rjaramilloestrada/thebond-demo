@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Label } from "@/components/brand/Label";
 import { Pending } from "@/components/Pending";
 import type { Edition } from "@/domain/types";
+import { editionHref } from "@/lib/routes";
 
 const STEPS = ["Elegir", "Datos", "Pago"] as const;
 
@@ -41,7 +42,7 @@ export function CheckoutHeader({
                 className={`label-caps ${active ? "border-b-2 border-bond-butter pb-1 text-bond-butter" : "pb-1 text-bond-sand"}`}
               >
                 {done && edition ? (
-                  <Link href={`/ediciones/${edition.slug}`} className="underline-offset-4 hover:underline">
+                  <Link href={editionHref(edition.slug)} className="underline-offset-4 hover:underline">
                     {inner}
                   </Link>
                 ) : (

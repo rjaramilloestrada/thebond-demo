@@ -1,6 +1,7 @@
 /**
  * Capturas de la Fase 3 a 390 y 1440 px (2x, ≤ 8000 px de alto cada una) en
- * docs/capturas/fase-3/. Corre contra `npm run start`:
+ * docs/capturas/fase-3/. Corre contra un servidor del export estático (ver e2e-fase-3.mjs;
+ * BASE_URL incluye la subruta si la hay):
  *
  *   BASE_URL=http://localhost:3000 node scripts/capturas-fase-3.mjs
  */
@@ -130,7 +131,7 @@ for (const width of [390, 1440]) {
     await page.getByRole("button", { name: "Aplicar" }).click();
     await page.locator('[data-testid="cupon-ok"]').waitFor();
     await page.locator('[data-testid="continuar"]').click();
-    await page.waitForURL(/\/comprar\/ord-/);
+    await page.waitForURL(/\/comprar\/\?orden=ord-/);
     await page.locator("#buyer-name").waitFor();
     await fillDatos(page, CEDULA_BAD);
     await page.locator("#taxid-error").waitFor();
@@ -150,7 +151,7 @@ for (const width of [390, 1440]) {
     const { context, page } = await open(width, { fastReservationTimer: true });
     await choose(page);
     await page.locator('[data-testid="continuar"]').click();
-    await page.waitForURL(/\/comprar\/ord-/);
+    await page.waitForURL(/\/comprar\/\?orden=ord-/);
     await page.locator("dialog[open]").waitFor({ timeout: 45_000 });
     await shoot(page, "reserva-vencida", width, { viewportOnly: true });
     await context.close();
@@ -160,7 +161,7 @@ for (const width of [390, 1440]) {
     const { context, page } = await open(width);
     await choose(page);
     await page.locator('[data-testid="continuar"]').click();
-    await page.waitForURL(/\/comprar\/ord-/);
+    await page.waitForURL(/\/comprar\/\?orden=ord-/);
     await page.locator("#buyer-name").waitFor();
     await fillDatos(page, CEDULA_OK);
     await page.getByRole("button", { name: /Ir a pagar/ }).click();

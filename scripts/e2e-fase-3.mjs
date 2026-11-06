@@ -1,8 +1,11 @@
 /**
  * E2E de la Fase 3 (flujo de compra), un caso por criterio de "Compra" del brief
- * (sección 8). Corre contra `npm run start` a 390 px:
+ * (sección 8). Corre a 390 px contra un servidor que sirva el export (`npx serve out`,
+ * o la carpeta `out` copiada bajo `/thebond-demo/` para el build de Pages). Si el sitio
+ * está bajo una subruta, va incluida en BASE_URL:
  *
  *   BASE_URL=http://localhost:3000 node scripts/e2e-fase-3.mjs
+ *   BASE_URL=http://localhost:4173/thebond-demo node scripts/e2e-fase-3.mjs
  *
  * Playwright viene preinstalado en el entorno (no se instala aquí). Para
  * decodificar los QR se usan `jsqr` y `pngjs` (devDependencies). Los tokens se
@@ -145,7 +148,7 @@ async function c1ThreeScreens() {
   });
   await plus(page, "tt-002-a", 2);
   await page.getByRole("button", { name: /^Continuar/ }).first().click();
-  await page.waitForURL(/\/comprar\/ord-[^/?]+$/);
+  await page.waitForURL(/\/comprar\/\?orden=ord-[^&]+$/);
   await fillDatos(page, 2);
   await goToPayment(page);
   await page.getByRole("button", { name: /^Pagar/ }).click();
@@ -153,12 +156,12 @@ async function c1ThreeScreens() {
   const screens = [];
   for (const u of urls) {
     const key = u.pathname + u.search;
-    if (key.endsWith("/confirmacion")) break;
+    if (key.includes("/comprar/confirmacion")) break;
     if (screens.at(-1) !== key) screens.push(key);
   }
   check(screens.length <= 3, `Se usaron ${screens.length} pantallas antes de pagar: ${screens.join(" → ")}`);
   check(screens.length === 3, `Se esperaban 3 pantallas (edición → datos → pago): ${screens.join(" → ")}`);
-  check(screens[0].startsWith("/ediciones/"), "La primera pantalla debería ser la edición");
+  check(screens[0].includes("/ediciones/"), "La primera pantalla debería ser la edición");
   await context.close();
   return `pantallas hasta pagar: ${screens.map((s) => s.replace(/ord-[a-z0-9]+/, "ord-…")).join(" → ")}`;
 }
@@ -199,7 +202,7 @@ async function c3Coupon() {
   check(total === "$XX" && sub === "$XX", `Los montos de ejemplo deben verse $XX (subtotal ${sub}, total ${total})`);
   // El descuento interno es 10 %: se comprueba en la orden reservada
   await page.getByRole("button", { name: /^Continuar/ }).first().click();
-  await page.waitForURL(/\/comprar\/ord-/);
+  await page.waitForURL(/\/comprar\/\?orden=ord-/);
   const db = await readDb(page);
   const order = Object.values(db.orders).find((o) => o.status === "reserved");
   check(order && order.couponCode === "BOND10", "La orden debe guardar el cupón BOND10");
@@ -228,7 +231,7 @@ async function c4Reservation() {
   const before = await seatsLeft(page);
   await plus(page, "tt-002-a", 2);
   await page.getByRole("button", { name: /^Continuar/ }).first().click();
-  await page.waitForURL(/\/comprar\/ord-/);
+  await page.waitForURL(/\/comprar\/\?orden=ord-/);
   const timer = page.locator('[data-testid="timer-clock"]');
   await timer.waitFor();
   const t0 = (await timer.textContent()).trim();
@@ -278,7 +281,7 @@ async function c5Validation() {
   const { context, page } = await newPage();
   await plus(page, "tt-002-a", 2);
   await page.getByRole("button", { name: /^Continuar/ }).first().click();
-  await page.waitForURL(/\/comprar\/ord-/);
+  await page.waitForURL(/\/comprar\/\?orden=ord-/);
   await page.locator("#buyer-name").waitFor();
 
   // Un bloque por asistente con los campos configurables
@@ -340,7 +343,7 @@ async function c6ApprovedQr() {
   await plus(page, "tt-002-a", 2);
   await plus(page, "tt-002-b", 1);
   await page.getByRole("button", { name: /^Continuar/ }).first().click();
-  await page.waitForURL(/\/comprar\/ord-/);
+  await page.waitForURL(/\/comprar\/\?orden=ord-/);
   await fillDatos(page, 3, RUC_OK);
   await goToPayment(page);
   await page.getByRole("button", { name: /^Pagar/ }).click();
@@ -387,7 +390,7 @@ async function c7Decline() {
   const { context, page } = await newPage({ forcePaymentDecline: true });
   await plus(page, "tt-002-a", 2);
   await page.getByRole("button", { name: /^Continuar/ }).first().click();
-  await page.waitForURL(/\/comprar\/ord-/);
+  await page.waitForURL(/\/comprar\/\?orden=ord-/);
   await fillDatos(page, 2);
   await goToPayment(page);
   const orderUrl = page.url();

@@ -15,6 +15,7 @@ import { barButton, CheckoutBar } from "./CheckoutBar";
 import { OrderSummary } from "./OrderSummary";
 import type { SummaryData } from "./summary";
 import { TaxIdField } from "./TaxIdField";
+import { checkoutHref } from "@/lib/routes";
 
 function SectionTitle({ n, id, children }: { n: string; id: string; children: React.ReactNode }) {
   return (
@@ -65,7 +66,7 @@ export function DataStep({
       document.querySelector<HTMLElement>(`[data-field="${first}"]`)?.focus();
       return;
     }
-    router.push(`/comprar/${order.id}?paso=pago`);
+    router.push(checkoutHref(order.id, "pago"));
   }
 
   const canUseBuyer = Boolean(draft.buyer.name.trim() || draft.buyer.email.trim());

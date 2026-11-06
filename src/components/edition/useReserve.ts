@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { reserve } from "@/services/checkout-service";
 import { useSelectionStore } from "@/store/selection-store";
+import { checkoutHref } from "@/lib/routes";
 
 /**
  * Reserva los cupos de la selección en curso y lleva a los datos
- * (`/comprar/[orderId]`). La usan el selector y la barra fija móvil. Si no hay
+ * (`/comprar?orden=<id>`). La usan el selector y la barra fija móvil. Si no hay
  * cupo, deja el mensaje en el store para que el selector lo muestre.
  */
 export function useReserve(editionId: string): () => Promise<void> {
@@ -23,7 +24,7 @@ export function useReserve(editionId: string): () => Promise<void> {
       couponCode: state.coupon?.code ?? null,
     });
     if (result.ok) {
-      router.push(`/comprar/${result.order.id}`);
+      router.push(checkoutHref(result.order.id));
       return;
     }
     const after = useSelectionStore.getState();

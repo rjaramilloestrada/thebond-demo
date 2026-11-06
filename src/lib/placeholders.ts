@@ -1,3 +1,4 @@
+import { withBasePath } from "./site";
 import manifest from "./placeholders.manifest.json";
 
 export interface PlaceholderAsset {
@@ -9,9 +10,9 @@ export interface PlaceholderAsset {
 
 export const placeholderAssets = manifest.assets as PlaceholderAsset[];
 
-/** Ruta pública de un placeholder en un ancho dado (WebP; hay AVIF con la misma ruta). */
+/** URL pública de un placeholder en un ancho dado (WebP; hay AVIF con la misma ruta). Incluye la subruta de despliegue. */
 export function placeholderSrc(name: string, width: 640 | 1280 | 1920 = 1280, format: "webp" | "avif" = "webp"): string {
-  return `/placeholders/${name}-${width}.${format}`;
+  return withBasePath(`/placeholders/${name}-${width}.${format}`);
 }
 
 export function getPlaceholder(name: string): PlaceholderAsset | undefined {
