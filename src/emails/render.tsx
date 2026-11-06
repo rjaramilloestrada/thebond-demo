@@ -7,6 +7,7 @@
  */
 import { render } from "@react-email/render";
 import type { ReactElement } from "react";
+import { PendingProvider } from "./parts";
 import { ReminderEmail, type ReminderEmailProps } from "./reminder";
 import { TicketEmail, type TicketEmailProps } from "./ticket";
 import { TransferEmail, type TransferEmailProps } from "./transfer";
@@ -31,6 +32,10 @@ export function emailElement(model: EmailModel): ReactElement {
   }
 }
 
-export function renderEmailHtml(model: EmailModel): Promise<string> {
-  return render(emailElement(model));
+/**
+ * HTML completo del correo. `showPending` sigue el modo presentación de la web:
+ * apagado (por defecto), sin marcadores `[[PENDIENTE: …]]`; encendido, resaltados.
+ */
+export function renderEmailHtml(model: EmailModel, opts: { showPending?: boolean } = {}): Promise<string> {
+  return render(<PendingProvider show={opts.showPending ?? false}>{emailElement(model)}</PendingProvider>);
 }

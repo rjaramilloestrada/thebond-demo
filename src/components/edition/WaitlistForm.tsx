@@ -57,23 +57,19 @@ export function WaitlistForm({ editionId, tone = "dark" }: { editionId: string; 
   if (status === "done" || status === "already") {
     return (
       <div role="status" className={`${labelCls} max-w-xl`}>
-        <p className="display-serif text-heading">
+        <p className="display-serif text-display-m">
           {status === "done" ? "Estás en la" : "Ya estabas en la"} <span className="accent-italic">lista.</span>
         </p>
         <p className="mt-4 text-lead">
-          {savedName}, si se libera un cupo te avisamos al correo {email.trim()}.
+          {savedName}, si se libera un cupo te avisamos a {email.trim()}.
         </p>
-        <p className="mt-3 text-sm opacity-90">Es un demo: tu lugar queda guardado solo en este navegador.</p>
       </div>
     );
   }
 
   const saving = status === "saving";
   return (
-    <form onSubmit={onSubmit} noValidate className={`${labelCls} grid max-w-xl gap-8`} aria-describedby={`${uid}-hint`}>
-      <p id={`${uid}-hint`} className="text-lead">
-        Déjanos tu nombre y tu correo. Si se libera un cupo, te avisamos primero.
-      </p>
+    <form onSubmit={onSubmit} noValidate className={`${labelCls} grid max-w-xl gap-8`}>
       <div>
         <label htmlFor={`${uid}-name`} className="label-caps">
           Nombre
@@ -120,7 +116,7 @@ export function WaitlistForm({ editionId, tone = "dark" }: { editionId: string; 
       <button
         type="submit"
         disabled={saving}
-        className={`${buttonBase} ${dark ? buttonTones.butter : buttonTones.night} w-full sm:w-fit`}
+        className={`${buttonBase} ${dark ? buttonTones.cream : buttonTones.olive} w-full !px-5 !tracking-[0.18em] sm:w-fit`}
       >
         {saving ? "Guardando…" : "Avísame si se libera un cupo"}
       </button>

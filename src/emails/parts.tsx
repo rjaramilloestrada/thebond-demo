@@ -5,15 +5,35 @@
  * (PENDIENTES.md).
  */
 import { Body, Button, Column, Container, Head, Heading, Html, Img, Link, Preview, Row, Section, Text } from "@react-email/components";
-import type { CSSProperties, ReactNode } from "react";
-import { splitPending } from "@/lib/pending";
+import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
+import { splitPending, stripPending } from "@/lib/pending";
 import { color, font, FONTS_STYLESHEET, WIDTH } from "./theme";
 import type { EmailBase, EmailEdition, EmailTicket } from "./types";
 
 /* ───────── Texto ───────── */
 
-/** Marcadores `[[PENDIENTE: …]]` resaltados, igual que en la web. */
-export function PendingText({ text }: { text: string }) {
+/**
+ * Modo presentación de la web (`showPending`): apagado, los correos no traen
+ * marcadores `[[PENDIENTE: …]]`; encendido, salen resaltados igual que en el sitio.
+ */
+const ShowPendingContext = createContext(false);
+
+export function PendingProvider({ show, children }: { show: boolean; children: ReactNode }) {
+  return <ShowPendingContext.Provider value={show}>{children}</ShowPendingContext.Provider>;
+}
+
+/** Contenido que solo existe con los pendientes visibles (notas de "falta confirmar"). */
+export function WhenShowingPending({ children }: { children: ReactNode }) {
+  return useContext(ShowPendingContext) ? <>{children}</> : null;
+}
+
+/** Marcadores `[[PENDIENTE: …]]` resaltados, igual que en la web (o ocultos si el modo presentación está apagado). */
+export function PendingText({ text, dash = false }: { text: string; dash?: boolean }) {
+  const show = useContext(ShowPendingContext);
+  if (!show) {
+    const clean = stripPending(text);
+    return <>{clean || (dash ? "—" : null)}</>;
+  }
   return (
     <>
       {splitPending(text).map((seg, i) =>
@@ -128,7 +148,7 @@ export function Shell({
       <Preview>{preheader}</Preview>
       <Body style={{ margin: 0, padding: "24px 0", backgroundColor: color.sand, fontFamily: font.body }}>
         <Container style={{ width: "100%", maxWidth: WIDTH, margin: "0 auto", backgroundColor: color.cream }}>
-          <Section style={{ backgroundColor: color.night, padding: "28px 0 24px", textAlign: "center" }}>
+          <Section style={{ backgroundColor: color.olive, padding: "28px 0 24px", textAlign: "center" }}>
             <Img
               src={`${assetBase}/email/monograma-butter.png`}
               alt="THE BOND"
@@ -136,10 +156,10 @@ export function Shell({
               height={52}
               style={{ display: "block", margin: "0 auto", border: 0 }}
             />
-            <Text style={{ ...labelStyle, color: color.sand, margin: "14px 0 0", textAlign: "center" }}>A wellness community</Text>
+            <Text style={{ ...labelStyle, color: color.cream, margin: "14px 0 0", textAlign: "center" }}>A wellness community</Text>
           </Section>
           {children}
-          <Section className="bond-pad" style={{ backgroundColor: color.night, padding: "36px 32px 30px", textAlign: "center" }}>
+          <Section className="bond-pad" style={{ backgroundColor: color.olive, padding: "36px 32px 30px", textAlign: "center" }}>
             <Img
               src={`${assetBase}/email/logo-cream.png`}
               alt="THE BOND, a wellness community"
@@ -150,10 +170,12 @@ export function Shell({
             <Text style={{ margin: "22px 0 0", fontFamily: font.display, fontSize: 22, lineHeight: "28px", color: color.cream, textAlign: "center" }}>
               See you in the next <em style={{ color: color.butter }}>bond.</em>
             </Text>
-            <Text style={{ margin: "18px 0 0", fontFamily: font.body, fontSize: 12, lineHeight: "18px", color: color.sand, textAlign: "center" }}>
-              Contacto: <PendingText text="[[PENDIENTE: correo de contacto de THE BOND]]" />
-            </Text>
-            <Text style={{ margin: "6px 0 0", fontFamily: font.body, fontSize: 12, lineHeight: "18px", color: color.sand, textAlign: "center" }}>
+            <WhenShowingPending>
+              <Text style={{ margin: "18px 0 0", fontFamily: font.body, fontSize: 12, lineHeight: "18px", color: color.cream, textAlign: "center" }}>
+                Contacto: <PendingText text="[[PENDIENTE: correo de contacto de THE BOND]]" />
+              </Text>
+            </WhenShowingPending>
+            <Text style={{ margin: "14px 0 0", fontFamily: font.body, fontSize: 12, lineHeight: "18px", color: color.cream, textAlign: "center" }}>
               Demo · datos simulados. Este correo no se envía a nadie.
             </Text>
           </Section>
@@ -163,18 +185,10 @@ export function Shell({
   );
 }
 
-export function Hero({
-  tone = "olive",
-  eyebrow,
-  children,
-}: {
-  tone?: "olive" | "ember" | "night";
-  eyebrow?: string;
-  children: ReactNode;
-}) {
+export function Hero({ eyebrow, children }: { eyebrow?: string; children: ReactNode }) {
   return (
-    <Section className="bond-pad" style={{ backgroundColor: color[tone], padding: "44px 32px 40px" }}>
-      {eyebrow && <Label tone={tone === "ember" ? "cream" : "butter"}>{eyebrow}</Label>}
+    <Section className="bond-pad" style={{ backgroundColor: color.olive, padding: "44px 32px 40px" }}>
+      {eyebrow && <Label tone="cream">{eyebrow}</Label>}
       <div style={{ marginTop: 14 }}>{children}</div>
     </Section>
   );
@@ -268,13 +282,13 @@ export function EditionFacts({ edition }: { edition: EmailEdition }) {
   return (
     <Section style={{ margin: "8px 0 0", borderBottom: `1px solid ${color.sand}` }}>
       <Fact label="Fecha">
-        <PendingText text={edition.dateLabel} />
+        <PendingText text={edition.dateLabel} dash />
       </Fact>
       <Fact label="Sede">
-        <PendingText text={edition.venueName} />
+        <PendingText text={edition.venueName} dash />
       </Fact>
       <Fact label="Dirección">
-        <PendingText text={edition.venueAddress} />
+        <PendingText text={edition.venueAddress} dash />
       </Fact>
     </Section>
   );
@@ -287,10 +301,10 @@ export function ScheduleTable({ schedule }: { schedule: EmailEdition["schedule"]
       {schedule.map((item, i) => (
         <Row key={i} style={{ borderTop: `1px solid ${color.sand}` }}>
           <Column style={{ width: 84, padding: "10px 12px 10px 0", verticalAlign: "top", fontFamily: font.display, fontSize: 20, lineHeight: "26px", color: color.night }}>
-            <PendingText text={item.time} />
+            <PendingText text={item.time} dash />
           </Column>
           <Column style={{ padding: "11px 0", verticalAlign: "top", fontFamily: font.body, fontSize: 16, lineHeight: "24px", color: color.night }}>
-            <PendingText text={item.title} />
+            <PendingText text={item.title} dash />
           </Column>
         </Row>
       ))}
@@ -304,14 +318,16 @@ export function HowToGet({ edition }: { edition: EmailEdition }) {
     <>
       <Text style={{ ...bodyText, margin: "10px 0 6px" }}>
         <strong style={{ fontWeight: 600 }}>
-          <PendingText text={edition.venueName} />
+          <PendingText text={edition.venueName} dash />
         </strong>
         <br />
         <PendingText text={edition.venueAddress} />
       </Text>
-      <Text style={{ ...bodyText, color: color.olive, fontSize: 14, lineHeight: "22px" }}>
-        <PendingText text="[[PENDIENTE: indicaciones para llegar y estacionamiento]]" /> · <PendingText text="[[PENDIENTE: enlace al mapa de la sede]]" />
-      </Text>
+      <WhenShowingPending>
+        <Text style={{ ...bodyText, color: color.olive, fontSize: 14, lineHeight: "22px" }}>
+          <PendingText text="[[PENDIENTE: indicaciones para llegar y estacionamiento]]" /> · <PendingText text="[[PENDIENTE: enlace al mapa de la sede]]" />
+        </Text>
+      </WhenShowingPending>
     </>
   );
 }

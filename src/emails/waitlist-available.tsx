@@ -1,5 +1,5 @@
 import { Text } from "@react-email/components";
-import { Block, bodyText, CtaButton, EditionFacts, Headline, Hero, Label, PendingText, SectionTitle, Shell, Spacer } from "./parts";
+import { Block, bodyText, CtaButton, EditionFacts, Headline, Hero, Label, PendingText, Shell, Spacer, WhenShowingPending } from "./parts";
 import type { EmailBase } from "./types";
 
 export type WaitlistEmailProps = EmailBase;
@@ -13,22 +13,19 @@ export function WaitlistAvailableEmail({ recipientName, edition, assetBase }: Wa
       </Hero>
       <Block>
         <Text style={bodyText}>
-          Hola {recipientName}, estabas en la lista de espera y se liberó un cupo en {edition.title}. Te avisamos primero, en el orden en
-          que te anotaste.
-        </Text>
-        <Text style={bodyText}>
-          El cupo no queda apartado: se asigna a quien complete su compra primero, así que entra cuanto antes.
+          Hola {recipientName}, se liberó un cupo en {edition.title}. El cupo no queda apartado: es de quien complete su compra primero.
         </Text>
         <Spacer height={8} />
         <CtaButton href={`${edition.url}#entradas`}>Ver la edición</CtaButton>
         <Spacer height={12} />
-        <Text style={{ ...bodyText, fontSize: 13, lineHeight: "20px" }}>
-          <PendingText text="[[PENDIENTE: política de la lista de espera (tiempo que se aparta el cupo)]]" />
-        </Text>
+        <WhenShowingPending>
+          <Text style={{ ...bodyText, fontSize: 13, lineHeight: "20px" }}>
+            <PendingText text="[[PENDIENTE: política de la lista de espera (tiempo que se aparta el cupo)]]" />
+          </Text>
+        </WhenShowingPending>
       </Block>
       <Block>
         <Label>La edición</Label>
-        <SectionTitle>{edition.title}</SectionTitle>
         <EditionFacts edition={edition} />
         <Spacer height={28} />
       </Block>

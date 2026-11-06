@@ -34,3 +34,34 @@ export function splitPending(value: string): PendingSegment[] {
   if (last < value.length) segments.push({ kind: "text", text: value.slice(last) });
   return segments;
 }
+
+/** true si el valor trae un dato real (no vacío y sin ningún marcador pendiente). */
+export function hasData(value: string | null | undefined): boolean {
+  if (!value || !value.trim()) return false;
+  return !isPending(value);
+}
+
+/**
+ * Quita los marcadores de un texto (modo presentación): "Murano Plaza · [[PENDIENTE: x]]"
+ * queda como "Murano Plaza". Retira también los separadores que quedan colgando
+ * (·, —, comas) y los espacios sobrantes. Devuelve "" si no queda nada.
+ */
+export function stripPending(value: string | null | undefined): string {
+  if (!value) return "";
+  return value
+    .replace(new RegExp(PENDING_SOURCE, "g"), "")
+    .replace(/\s*[·—,;:|-]\s*(?=[·—,;:|-]|$)/g, "")
+    .replace(/^[\s·—,;:|-]+|[\s·—,;:|-]+$/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/** true si todos los valores son pendientes o están vacíos (la sección entera pasa a ser un teaser). */
+export function allPending(values: readonly (string | null | undefined)[]): boolean {
+  return values.every((v) => !hasData(v) && stripPending(v) === "");
+}
+
+/** true si algún valor trae un dato real (aunque otros sigan pendientes). */
+export function anyData(values: readonly (string | null | undefined)[]): boolean {
+  return values.some((v) => stripPending(v) !== "");
+}

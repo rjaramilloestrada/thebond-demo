@@ -25,6 +25,25 @@
       ]
     },
     {
+      "name": "portada-edicion",
+      "pending": "[[PENDIENTE: foto de portada de la edición]]",
+      "aspect": "4/5",
+      "widths": [
+        {
+          "width": 640,
+          "height": 800
+        },
+        {
+          "width": 1280,
+          "height": 1600
+        },
+        {
+          "width": 1920,
+          "height": 2400
+        }
+      ]
+    },
+    {
       "name": "galeria-001-01",
       "pending": "[[PENDIENTE: foto 1 de la ed. 001 en alta resolución]]",
       "aspect": "4/5",

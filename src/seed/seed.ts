@@ -29,7 +29,7 @@ import type {
 
 export type SeedData = { [K in EntityKey]: Record<ID, Entities[K]> };
 
-export const SEED_VERSION = 1;
+export const SEED_VERSION = 2;
 
 const DAY = 86_400_000;
 const HOUR = 3_600_000;
@@ -76,22 +76,22 @@ export function seed(now: Date = new Date()): SeedData {
   const includes = [
     {
       id: "inc-experiencias",
-      title: "Experiencias",
+      title: "Experiences",
       description: "Welcome drink, fuel stop, clases y wellness talk.",
     },
     {
       id: "inc-bag",
-      title: "THE BOND BAG",
+      title: "The Bond Bag",
       description: "Un gift bag con productos de las marcas aliadas.",
     },
     {
       id: "inc-table",
-      title: "THE BOND TABLE",
+      title: "The Bond Table",
       description: "Brunch para compartir con la comunidad.",
     },
     {
       id: "inc-lucky",
-      title: "THE LUCKY BOND",
+      title: "The Lucky Bond",
       description: "Sorteo de beneficios entre las asistentes.",
     },
   ];
@@ -168,7 +168,7 @@ export function seed(now: Date = new Date()): SeedData {
       },
     ],
     galleryAssets: [],
-    heroAsset: "hero-edicion",
+    heroAsset: "portada-edicion",
   };
 
   /* ───────── Tipos de entrada y etapas ───────── */
@@ -194,7 +194,7 @@ export function seed(now: Date = new Date()): SeedData {
     {
       id: "tt-002-a",
       editionId: "ed-002",
-      name: "Entrada A · ejemplo",
+      name: "Entrada A",
       description: pending("descripción del tipo de entrada A"),
       order: 1,
       capacity: 40,
@@ -204,7 +204,7 @@ export function seed(now: Date = new Date()): SeedData {
     {
       id: "tt-002-b",
       editionId: "ed-002",
-      name: "Entrada B · ejemplo",
+      name: "Entrada B",
       description: pending("descripción del tipo de entrada B"),
       order: 2,
       capacity: 20,
@@ -219,7 +219,7 @@ export function seed(now: Date = new Date()): SeedData {
       id: "af-002-talla",
       editionId: "ed-002",
       key: "talla",
-      label: "Talla de camiseta (ejemplo)",
+      label: "Talla de camiseta",
       type: "select",
       options: ["XS", "S", "M", "L", "XL"],
       required: true,
@@ -230,7 +230,7 @@ export function seed(now: Date = new Date()): SeedData {
       id: "af-002-nivel",
       editionId: "ed-002",
       key: "nivel",
-      label: "Nivel (ejemplo)",
+      label: "Nivel",
       type: "select",
       options: ["Principiante", "Intermedio", "Avanzado"],
       required: false,

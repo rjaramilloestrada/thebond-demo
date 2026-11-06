@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Label } from "@/components/brand/Label";
 import { buttonBase, buttonTones } from "@/components/ui/button-styles";
 import type { EmailLog } from "@/domain/types";
 import { BASE_PATH } from "@/lib/site";
 import { loadEmailPreview } from "@/services/preview-service";
 import { useDbStore } from "@/store/db-store";
+import { useDemoStore } from "@/store/demo-store";
 import { useHasHydrated } from "@/store/hydrate";
 import { currentSiteUrl, formatEcuadorDateTime } from "./format";
 
@@ -24,6 +24,7 @@ type State =
  */
 export function EmailPreviewView({ emailId }: { emailId: string }) {
   const hydrated = useHasHydrated();
+  const showPending = useDemoStore((s) => s.showPending);
   const emailExists = useDbStore((s) => Boolean(s.emails[emailId]));
   const [state, setState] = useState<State>({ status: "loading" });
 
@@ -38,7 +39,7 @@ export function EmailPreviewView({ emailId }: { emailId: string }) {
       }
       // React Email (y su render) solo se descarga aquí: ninguna otra pantalla lo necesita
       const { renderEmailHtml } = await import("@/emails/render");
-      const html = await renderEmailHtml(result.model);
+      const html = await renderEmailHtml(result.model, { showPending });
       if (!cancelled) setState({ status: "ready", log: result.log, html });
     })().catch(() => {
       if (!cancelled) setState({ status: "error", message: "No se pudo armar la vista previa de este correo." });
@@ -46,45 +47,42 @@ export function EmailPreviewView({ emailId }: { emailId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [hydrated, emailId, emailExists]);
+  }, [hydrated, emailId, emailExists, showPending]);
 
   return (
-    <main id="contenido" className="min-h-svh bg-bond-sand">
-      <div className="surface-dark grain relative isolate overflow-hidden bg-bond-night pb-8 pt-28 text-bond-cream md:pb-10 md:pt-32">
-        <div className="container-editorial relative z-10">
-          <Label className="text-bond-butter">Vista previa · este correo no se envía</Label>
+    <main id="contenido" className="min-h-svh bg-bond-sand pt-[4.5rem] text-bond-night md:pt-24">
+      <div className="container-editorial pb-6 pt-8 md:pt-10">
+        <div className="mx-auto max-w-[40rem]">
+          <p className="label-caps text-bond-olive">Vista previa · este correo no se envía</p>
           {state.status === "ready" ? (
-            <dl data-testid="correo-barra" className="mt-5 grid gap-x-10 gap-y-3 text-base md:grid-cols-[auto_1fr] md:gap-y-2">
-              <dt className="label-caps text-bond-sand">Para</dt>
+            <dl data-testid="correo-barra" className="mt-5 grid gap-x-8 gap-y-2 text-sm md:grid-cols-[auto_1fr]">
+              <dt className="label-caps self-center text-bond-olive">Para</dt>
               <dd data-testid="correo-para" className="min-w-0 break-words">
                 {state.log.to}
               </dd>
-              <dt className="label-caps text-bond-sand">Asunto</dt>
-              <dd data-testid="correo-asunto" className="min-w-0 break-words font-display text-xl md:text-2xl">
+              <dt className="label-caps self-center text-bond-olive">Asunto</dt>
+              <dd data-testid="correo-asunto" className="min-w-0 break-words font-display text-xl">
                 {state.log.subject}
               </dd>
-              <dt className="label-caps text-bond-sand">Fecha</dt>
+              <dt className="label-caps self-center text-bond-olive">Fecha</dt>
               <dd className="min-w-0">{formatEcuadorDateTime(state.log.sentAt)}</dd>
             </dl>
           ) : (
-            <p className="mt-5 text-lead text-bond-sand" aria-live="polite">
+            <p className="mt-5 text-lead text-bond-olive" aria-live="polite">
               {state.status === "loading" ? "Armando la vista previa…" : state.message}
             </p>
           )}
-          <p className="mt-5 max-w-xl text-sm text-bond-sand">
-            Es un demo: el correo se muestra tal como se vería, pero no se envía a nadie. En producción lo enviaría el servicio de correo.
-          </p>
         </div>
       </div>
 
-      <div className="container-editorial py-8 md:py-12">
+      <div className="container-editorial pb-12 pt-2 md:pb-20">
         {state.status === "ready" && <EmailFrame html={state.html} />}
         {state.status === "error" && (
           <div className="mx-auto max-w-xl py-10">
             <h1 className="display-serif text-display-m">
               Correo no <span className="accent-italic text-bond-ember">disponible</span>
             </h1>
-            <Link href="/" className={`${buttonBase} ${buttonTones.night} mt-8`}>
+            <Link href="/" className={`${buttonBase} ${buttonTones.olive} mt-8`}>
               Volver al inicio
             </Link>
           </div>

@@ -1,5 +1,5 @@
 import { Text } from "@react-email/components";
-import { Block, bodyText, EditionFacts, Headline, Hero, HowToGet, IncludesList, Label, ScheduleTable, SectionTitle, Shell, Spacer, TicketCard } from "./parts";
+import { Block, bodyText, EditionFacts, Headline, Hero, HowToGet, IncludesList, Label, ScheduleTable, Shell, Spacer, TicketCard } from "./parts";
 import type { EmailBase, EmailTicket } from "./types";
 
 export interface TicketEmailProps extends EmailBase {
@@ -16,8 +16,7 @@ export function TicketEmail({ recipientName, edition, tickets, assetBase }: Tick
       </Hero>
       <Block>
         <Text style={bodyText}>
-          Hola {recipientName}, {many ? `tus ${tickets.length} entradas están listas` : "tu entrada está lista"}. Cada una tiene su QR único: en
-          la puerta se escanea el de cada asistente.
+          Hola {recipientName}, {many ? `tus ${tickets.length} entradas están listas` : "tu entrada está lista"}. Muestra el QR en la puerta.
         </Text>
         <Spacer height={8} />
         {tickets.map((t) => (
@@ -26,22 +25,18 @@ export function TicketEmail({ recipientName, edition, tickets, assetBase }: Tick
       </Block>
       <Block>
         <Label>La edición</Label>
-        <SectionTitle>{edition.title}</SectionTitle>
         <EditionFacts edition={edition} />
       </Block>
       <Block>
         <Label>Cronograma</Label>
-        <SectionTitle>El día, hora por hora</SectionTitle>
         <ScheduleTable schedule={edition.schedule} />
       </Block>
       <Block>
         <Label>Cómo llegar</Label>
-        <SectionTitle>La sede</SectionTitle>
         <HowToGet edition={edition} />
       </Block>
       <Block>
         <Label>Your ticket includes</Label>
-        <SectionTitle>Qué incluye</SectionTitle>
         <IncludesList includes={edition.includes} />
         <Spacer height={28} />
       </Block>

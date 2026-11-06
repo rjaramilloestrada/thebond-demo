@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Bodoni_Moda, Inter } from "next/font/google";
-import { DemoBadge } from "@/components/brand/DemoBadge";
 import { Footer } from "@/components/brand/Footer";
 import { StoreHydrator } from "@/components/StoreHydrator";
 import { NOINDEX, OG_IMAGE, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
@@ -15,11 +14,12 @@ const bodoni = Bodoni_Moda({
   variable: "--font-bodoni",
 });
 
-/* Display sans bold condensada: Archivo variable con eje de ancho (wdth) */
+/* Display sans bold condensada, solo para UNA línea de manifiesto (Quiet Bond): Archivo variable con eje de ancho (wdth) */
 const archivo = Archivo({
   subsets: ["latin"],
   axes: ["wdth"],
   display: "swap",
+  preload: false,
   variable: "--font-archivo",
 });
 
@@ -59,7 +59,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={`${bodoni.variable} ${archivo.variable} ${inter.variable}`}>
       <body>
-        <DemoBadge />
         <StoreHydrator />
         {children}
         <Footer />

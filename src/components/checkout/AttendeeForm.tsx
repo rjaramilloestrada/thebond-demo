@@ -1,14 +1,14 @@
 "use client";
 
 import { Pending } from "@/components/Pending";
-import { buttonBase, buttonTones } from "@/components/ui/button-styles";
 import { SelectField, TextField } from "@/components/ui/Field";
 import { fieldKey, type AttendeeDraft } from "@/domain/checkout";
 import type { AttendeeField, TicketType } from "@/domain/types";
 
 /**
- * Un bloque por asistente: nombre, correo y los campos configurables de la
- * edición (`attendeeFields`: talla, nivel…). El primero ofrece "Usar mis datos".
+ * Un bloque colapsable por asistente: nombre, correo y los campos configurables
+ * de la edición (`attendeeFields`: talla, nivel…). El resumen muestra el nombre,
+ * el tipo de entrada y si ya está completo. El primero ofrece "Usar mis datos".
  */
 export function AttendeeForm({
   index,
@@ -20,6 +20,9 @@ export function AttendeeForm({
   onBlurField,
   onUseBuyer,
   canUseBuyer,
+  open,
+  onOpenChange,
+  complete,
 }: {
   index: number;
   ticketType: TicketType | undefined;
@@ -30,37 +33,53 @@ export function AttendeeForm({
   onBlurField: (key: string) => void;
   onUseBuyer?: () => void;
   canUseBuyer?: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  complete: boolean;
 }) {
   const n = index + 1;
   const setAnswer = (fieldId: string, answer: string) =>
     onChange({ ...value, answers: { ...value.answers, [fieldId]: answer } });
   return (
-    <fieldset data-testid={`attendee-${index}`} className="paper-edge min-w-0 bg-bond-cream p-6 md:p-8">
-      <legend className="sr-only">Asistente {n}</legend>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h3 className="display-serif text-heading">Asistente {n}</h3>
+    <details
+      data-testid={`attendee-${index}`}
+      open={open}
+      onToggle={(e) => onOpenChange(e.currentTarget.open)}
+      className="border-b border-bond-night/20"
+    >
+      <summary className="flex min-h-16 cursor-pointer items-center justify-between gap-4 py-3">
+        <span className="min-w-0">
+          <span className="block truncate font-display text-xl">{value.name.trim() || `Asistente ${n}`}</span>
           {ticketType && (
-            <p className="label-caps mt-2 text-bond-olive">
+            <span className="label-caps mt-1 block text-bond-olive">
               <Pending text={ticketType.name} />
-            </p>
+            </span>
           )}
-        </div>
+        </span>
+        <span className="flex shrink-0 items-center gap-3">
+          {complete && (
+            <svg aria-label="Completo" role="img" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="m5 10.5 3.2 3.2L15 6.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+          <span aria-hidden className="details-plus text-xl leading-none transition-transform duration-[var(--dur-base)]">
+            +
+          </span>
+        </span>
+      </summary>
+      <div className="grid gap-6 pb-8 pt-2">
         {index === 0 && onUseBuyer && (
-          <button
-            type="button"
-            onClick={onUseBuyer}
-            disabled={!canUseBuyer}
-            className={`${buttonBase} ${buttonTones.outlineLight} !min-h-12 !px-5 disabled:cursor-not-allowed disabled:opacity-50`}
-          >
-            Usar mis datos
-          </button>
+          <div>
+            <button
+              type="button"
+              onClick={onUseBuyer}
+              disabled={!canUseBuyer}
+              className="inline-flex min-h-11 items-center text-sm underline underline-offset-4 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-50"
+            >
+              Usar mis datos
+            </button>
+          </div>
         )}
-      </div>
-      {index === 0 && onUseBuyer && !canUseBuyer && (
-        <p className="mt-2 text-sm text-bond-olive">Completa tu nombre y correo arriba para copiarlos aquí.</p>
-      )}
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
         <TextField
           id={`att-${index}-name`}
           fieldKey={fieldKey.attendee(index, "name")}
@@ -113,6 +132,6 @@ export function AttendeeForm({
           );
         })}
       </div>
-    </fieldset>
+    </details>
   );
 }

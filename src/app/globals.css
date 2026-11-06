@@ -29,27 +29,30 @@
   --ease-editorial: var(--bond-ease);
 }
 
-/* Escala fluida (clamp). 390 px → 1440 px */
+/*
+ * Escala fluida (clamp), 390 px → 1440 px. Quiet Bond: titulares serif finos y
+ * en mayúsculas, más pequeños y con más aire que antes.
+ */
 @theme {
-  --text-display-hero: clamp(3rem, 0.5rem + 13vw, 10rem);
-  --text-display-hero--line-height: 0.88;
-  --text-display-hero--letter-spacing: -0.02em;
-  --text-display-xl: clamp(4.25rem, 0.5rem + 9.5vw, 10rem);
-  --text-display-xl--line-height: 0.88;
-  --text-display-xl--letter-spacing: -0.02em;
-  --text-display-xl-long: clamp(3.1rem, 0.5rem + 8vw, 8rem);
-  --text-display-xl-long--line-height: 0.9;
-  --text-display-xl-long--letter-spacing: -0.015em;
-  --text-display-l: clamp(2.5rem, 0.5rem + 7vw, 7rem);
-  --text-display-l--line-height: 0.92;
-  --text-display-l--letter-spacing: -0.015em;
-  --text-display-m: clamp(2rem, 1.2rem + 3.4vw, 4.25rem);
-  --text-display-m--line-height: 1;
-  --text-display-m--letter-spacing: -0.01em;
-  --text-heading: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
-  --text-heading--line-height: 1.1;
-  --text-lead: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
-  --text-lead--line-height: 1.5;
+  --text-display-hero: clamp(2.5rem, 1rem + 8vw, 6.5rem);
+  --text-display-hero--line-height: 0.98;
+  --text-display-hero--letter-spacing: 0.01em;
+  --text-display-xl: clamp(2.875rem, 1.3rem + 7.6vw, 7rem);
+  --text-display-xl--line-height: 0.98;
+  --text-display-xl--letter-spacing: 0.01em;
+  --text-display-xl-long: clamp(2.125rem, 0.8rem + 6.2vw, 5.25rem);
+  --text-display-xl-long--line-height: 1;
+  --text-display-xl-long--letter-spacing: 0.01em;
+  --text-display-l: clamp(2rem, 1rem + 4.6vw, 4.25rem);
+  --text-display-l--line-height: 1;
+  --text-display-l--letter-spacing: 0.01em;
+  --text-display-m: clamp(1.625rem, 1rem + 2.4vw, 2.875rem);
+  --text-display-m--line-height: 1.05;
+  --text-display-m--letter-spacing: 0.01em;
+  --text-heading: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+  --text-heading--line-height: 1.15;
+  --text-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-lead--line-height: 1.55;
   --text-body: 1rem;
   --text-body--line-height: 1.6;
   --text-label: 0.6875rem;
@@ -91,18 +94,24 @@
   }
 }
 
-/* Roles tipográficos del brief 3.2 */
+/*
+ * Dos voces (Quiet Bond): Bodoni Moda para titulares (fino, mayúsculas, itálica de
+ * acento, como el logo) e Inter para texto y etiquetas. `display-sans` (Archivo
+ * condensada) queda solo para UNA línea de manifiesto.
+ */
 @utility display-serif {
   font-family: var(--font-display);
   font-weight: 400;
   text-transform: uppercase;
   font-optical-sizing: auto;
+  letter-spacing: 0.01em;
 }
 @utility accent-italic {
   font-family: var(--font-display);
   font-style: italic;
   text-transform: none;
   font-weight: 400;
+  letter-spacing: 0;
 }
 @utility display-sans {
   font-family: var(--font-condensed);
@@ -111,14 +120,21 @@
   text-transform: uppercase;
   letter-spacing: -0.005em;
 }
+/* Etiquetas finas, con tracking amplio: "A WELLNESS COMMUNITY" */
 @utility label-caps {
-  font-family: var(--font-condensed);
+  font-family: var(--font-sans);
   font-size: var(--text-label);
-  font-weight: 600;
-  font-variation-settings: "wdth" 100;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: var(--label-tracking);
   line-height: 1.4;
+}
+/* Columna única y aireada (checkout y pantallas de post compra) */
+@utility container-column {
+  width: 100%;
+  max-width: calc(34rem + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
 }
 @utility container-editorial {
   width: 100%;
@@ -154,13 +170,13 @@
 /* Sunset animado: capa muy lenta detrás del titular */
 @keyframes sunset-drift {
   0% {
-    transform: translate3d(-4%, 2%, 0) scale(1.08);
+    transform: translate3d(-2%, 1%, 0) scale(1.05);
   }
   50% {
-    transform: translate3d(4%, -3%, 0) scale(1.18);
+    transform: translate3d(2%, -1.5%, 0) scale(1.1);
   }
   100% {
-    transform: translate3d(-4%, 2%, 0) scale(1.08);
+    transform: translate3d(-2%, 1%, 0) scale(1.05);
   }
 }
 .sunset-sun {
@@ -173,6 +189,7 @@
     var(--bond-ember) 52%,
     transparent 100%
   );
+  opacity: 0.88;
   animation: sunset-drift var(--dur-sunset) ease-in-out infinite;
   will-change: transform;
 }
@@ -213,7 +230,7 @@
 @keyframes soft-rise {
   from {
     opacity: 0;
-    transform: translate3d(0, 14px, 0);
+    transform: translate3d(0, 8px, 0);
   }
   to {
     opacity: 1;
@@ -233,35 +250,7 @@
 }
 .hero-fade {
   animation: soft-rise var(--dur-slow) var(--bond-ease) both;
-  animation-delay: calc(var(--d, 0) * 1ms + 350ms);
-}
-
-/* Marquee de marcas (CSS puro, pausa en hover, foco y con el botón) */
-@keyframes marquee-scroll {
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-.marquee {
-  overflow: hidden;
-}
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee-scroll 70s linear infinite;
-  will-change: transform;
-}
-.marquee-group {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 3rem;
-  padding-right: 3rem;
-}
-.marquee:hover .marquee-track,
-.marquee:focus-within .marquee-track,
-.marquee[data-paused="true"] .marquee-track {
-  animation-play-state: paused;
+  animation-delay: calc(var(--d, 0) * 1ms + 150ms);
 }
 
 /* Lenis: el scroll suave reemplaza al nativo */
@@ -271,22 +260,6 @@ html.lenis body {
 }
 html.lenis {
   scroll-behavior: auto;
-}
-
-/*
- * Etiqueta DEMO: en móvil es una franja en el flujo (alto --demo-strip-h) y el
- * encabezado público baja esa altura; desde 768 px es una etiqueta fija.
- */
-:root {
-  --demo-strip-h: 1.75rem;
-}
-@media (min-width: 48rem) {
-  :root {
-    --demo-strip-h: 0px;
-  }
-}
-.demo-badge {
-  transition: transform var(--dur-base) var(--bond-ease);
 }
 
 /* Marca del acordeón <details> */
@@ -317,24 +290,6 @@ details[open] .details-plus {
   .hero-fade {
     animation: none;
   }
-  /* Marquee: lista estática, sin duplicado */
-  .marquee-track {
-    animation: none;
-    width: auto;
-    flex-wrap: wrap;
-  }
-  .marquee-group {
-    flex-wrap: wrap;
-    row-gap: 2rem;
-    padding-right: 0;
-  }
-  .marquee-dup,
-  .marquee-extra,
-  .marquee-lead,
-  .marquee-pause {
-    display: none;
-  }
-  .demo-badge,
   .details-plus {
     transition: none;
   }
@@ -357,11 +312,102 @@ details[open] .details-plus {
   }
 }
 
-/* Entre 768 y 1023 px la etiqueta fija sube sobre la barra del checkout */
-@media (min-width: 48rem) and (max-width: 63.99rem) {
-  body:has([data-checkout-bar]) .demo-badge {
-    transform: translate3d(0, -4.75rem, 0);
+/*
+ * Hoja de compra (bottom sheet en móvil, panel lateral en escritorio): <dialog>
+ * nativo. Solo transform y opacity; con prefers-reduced-motion queda en fundido.
+ */
+.sheet-dialog {
+  margin: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  inset: auto 0 0 0;
+  width: 100%;
+  max-height: 92svh;
+  border-radius: 1.25rem 1.25rem 0 0;
+  overflow: hidden;
+}
+.sheet-dialog::backdrop {
+  background: color-mix(in srgb, var(--bond-night) 55%, transparent);
+  animation: modal-fade var(--dur-base) var(--bond-ease) both;
+}
+.sheet-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  animation: sheet-up 600ms var(--bond-ease) both;
+}
+.sheet-dialog[data-closing="true"] {
+  animation: sheet-down 320ms var(--bond-ease) both;
+}
+.sheet-dialog[data-closing="true"]::backdrop {
+  animation: modal-fade-out 320ms var(--bond-ease) both;
+}
+@keyframes sheet-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6%, 0);
   }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes sheet-down {
+  to {
+    opacity: 0;
+    transform: translate3d(0, 6%, 0);
+  }
+}
+@keyframes sheet-in-right {
+  from {
+    opacity: 0;
+    transform: translate3d(4%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes sheet-out-right {
+  to {
+    opacity: 0;
+    transform: translate3d(4%, 0, 0);
+  }
+}
+@keyframes modal-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@media (min-width: 48rem) {
+  .sheet-dialog {
+    inset: 0 0 0 auto;
+    width: 30rem;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+  .sheet-dialog[open] {
+    animation-name: sheet-in-right;
+  }
+  .sheet-dialog[data-closing="true"] {
+    animation-name: sheet-out-right;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet-dialog[open],
+  .sheet-dialog[data-closing="true"] {
+    animation-name: modal-fade !important;
+    animation-duration: 200ms !important;
+  }
+  .sheet-dialog[data-closing="true"] {
+    animation-name: modal-fade-out !important;
+  }
+}
+
+/* Barra de progreso fina de la reserva */
+.progress-line > span {
+  transition: transform 250ms linear;
 }
 
 /*

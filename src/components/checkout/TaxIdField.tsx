@@ -24,7 +24,7 @@ export function TaxIdField({
     <TextField
       id="taxid"
       fieldKey="taxId"
-      label="Cédula o RUC para la factura"
+      label="Cédula o RUC"
       inputMode="numeric"
       autoComplete="off"
       maxLength={13}
@@ -33,11 +33,7 @@ export function TaxIdField({
       onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 13))}
       onBlur={onBlur}
       error={error}
-      hint={
-        <>
-          Para tu factura electrónica. <span data-testid="taxid-kind">{detected}</span>
-        </>
-      }
+      hint={<span data-testid="taxid-kind">{detected}</span>}
     />
   );
 }

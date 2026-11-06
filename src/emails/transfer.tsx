@@ -1,6 +1,6 @@
 import { Text } from "@react-email/components";
 import type { TransferInfo } from "@/domain/types";
-import { Block, bodyText, CtaButton, EditionFacts, Headline, Hero, HowToGet, Label, ScheduleTable, SectionTitle, Shell, Spacer, TicketCard } from "./parts";
+import { Block, bodyText, CtaButton, EditionFacts, Headline, Hero, HowToGet, Label, ScheduleTable, Shell, Spacer, TicketCard } from "./parts";
 import type { EmailBase, EmailTicket } from "./types";
 
 export interface TransferEmailProps extends EmailBase {
@@ -17,7 +17,7 @@ export function TransferEmail({ transfer, ticket, edition, assetBase }: Transfer
   if (transfer.role === "previous-holder") {
     return (
       <Shell preheader={`Tu entrada a ${edition.title} ahora es de ${transfer.toName}.`} assetBase={assetBase}>
-        <Hero tone="night" eyebrow={`Edición ${edition.number} · ${edition.title}`}>
+        <Hero eyebrow={`Edición ${edition.number} · ${edition.title}`}>
           <Headline lead="Entrada" accent="transferida." />
         </Hero>
         <Block>
@@ -32,7 +32,6 @@ export function TransferEmail({ transfer, ticket, edition, assetBase }: Transfer
         </Block>
         <Block>
           <Label>La edición</Label>
-          <SectionTitle>{edition.title}</SectionTitle>
           <EditionFacts edition={edition} />
           <Spacer height={28} />
         </Block>
@@ -54,17 +53,14 @@ export function TransferEmail({ transfer, ticket, edition, assetBase }: Transfer
       </Block>
       <Block>
         <Label>La edición</Label>
-        <SectionTitle>{edition.title}</SectionTitle>
         <EditionFacts edition={edition} />
       </Block>
       <Block>
         <Label>Cronograma</Label>
-        <SectionTitle>El día, hora por hora</SectionTitle>
         <ScheduleTable schedule={edition.schedule} />
       </Block>
       <Block>
         <Label>Cómo llegar</Label>
-        <SectionTitle>La sede</SectionTitle>
         <HowToGet edition={edition} />
         <Spacer height={28} />
       </Block>

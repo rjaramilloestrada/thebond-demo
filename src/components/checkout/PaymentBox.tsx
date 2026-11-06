@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Pending } from "@/components/Pending";
-import { buttonBase, buttonTones } from "@/components/ui/button-styles";
+import { Pending, WhenShowingPending } from "@/components/Pending";
+import { buttonBase, buttonTones, quietLink } from "@/components/ui/button-styles";
 import { ErrorIcon, TextField } from "@/components/ui/Field";
 import type { CheckoutDraft } from "@/domain/checkout";
 import type { Order } from "@/domain/types";
@@ -95,11 +95,11 @@ export function PaymentBox({
 
   if (!draftValid) {
     return (
-      <div className="container-editorial py-12 pb-32 md:py-20">
-        <div role="alert" className="paper-edge max-w-xl bg-bond-cream p-6" data-testid="datos-incompletos">
-          <p className="display-serif text-heading">Faltan tus datos</p>
+      <div className="container-column pb-32 pt-10 md:pt-12">
+        <div role="alert" data-testid="datos-incompletos">
+          <p className="display-serif text-display-m">Faltan tus datos</p>
           <p className="mt-3 text-bond-olive">Antes de pagar necesitamos los datos de la compra y de cada asistente.</p>
-          <Link href={checkoutHref(order.id)} className={`${buttonBase} ${buttonTones.night} mt-6 w-full sm:w-fit`}>
+          <Link href={checkoutHref(order.id)} className={`${buttonBase} ${buttonTones.olive} mt-8 w-full sm:w-fit`}>
             Completar mis datos
           </Link>
         </div>
@@ -108,110 +108,98 @@ export function PaymentBox({
   }
 
   return (
-    <div className="container-editorial py-12 pb-32 md:py-20 lg:pb-24">
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_26rem] lg:gap-16">
-        <div className="max-w-xl">
-          <form id="pago-form" onSubmit={onSubmit} noValidate aria-busy={paying}>
-            <div className="paper-edge bg-bond-cream p-6 md:p-8">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="display-serif text-heading">Tarjeta</h2>
-                <p
-                  data-testid="tarjeta-de-prueba"
-                  className="label-caps rounded-sm bg-bond-butter px-3 py-2 text-bond-night"
-                >
-                  Tarjeta de prueba · no se cobra nada
-                </p>
-              </div>
-              <p className="mt-3 text-sm text-bond-olive">
-                Esta es una caja de pagos simulada: ya dejamos los datos de la tarjeta de prueba listos.
-              </p>
-              <div className="mt-6 grid grid-cols-2 gap-6">
-                <TextField
-                  id="card-number"
-                  label="Número de tarjeta"
-                  inputMode="numeric"
-                  autoComplete="cc-number"
-                  value={card.number}
-                  onChange={(e) => setCard({ ...card, number: formatCardNumber(e.target.value) })}
-                  error={cardErrors.number}
-                  disabled={paying}
-                  className="col-span-2"
-                />
-                <TextField
-                  id="card-expiry"
-                  label="Vencimiento"
-                  inputMode="numeric"
-                  autoComplete="cc-exp"
-                  placeholder="MM/AA"
-                  value={card.expiry}
-                  onChange={(e) => setCard({ ...card, expiry: formatExpiry(e.target.value) })}
-                  error={cardErrors.expiry}
-                  disabled={paying}
-                />
-                <TextField
-                  id="card-cvc"
-                  label="Código (CVC)"
-                  inputMode="numeric"
-                  autoComplete="cc-csc"
-                  maxLength={4}
-                  value={card.cvc}
-                  onChange={(e) => setCard({ ...card, cvc: e.target.value.replace(/\D/g, "").slice(0, 4) })}
-                  error={cardErrors.cvc}
-                  disabled={paying}
-                />
-              </div>
-            </div>
-
-            {failure && (
-              <div
-                ref={alertRef}
-                tabIndex={-1}
-                role="alert"
-                data-testid="pago-rechazado"
-                className="mt-6 border-2 border-bond-ember bg-bond-cream p-5 text-bond-night"
-              >
-                <p className="flex items-start gap-2 font-medium">
-                  <ErrorIcon />
-                  <span>Pago rechazado</span>
-                </p>
-                <p className="mt-2 pl-7 text-sm">{failure.message}</p>
-                <p className="mt-2 pl-7 text-sm">Tus datos siguen guardados: puedes reintentar o volver a revisarlos.</p>
-              </div>
-            )}
-
-            <div className="mt-6 hidden lg:block">
-              <button
-                type="submit"
-                disabled={paying}
-                data-testid="pagar"
-                className={`${buttonBase} ${buttonTones.night} w-full disabled:cursor-wait disabled:opacity-70`}
-              >
-                {label}
-                {!paying && <span aria-hidden>→</span>}
-              </button>
-            </div>
-            <p className="mt-4 text-sm text-bond-olive">
-              Texto legal: <Pending text="[[PENDIENTE: texto legal del checkout (términos, privacidad y reembolsos)]]" />
-            </p>
-            <span role="status" aria-live="polite" className="sr-only">
-              {paying ? "Procesando el pago…" : ""}
-            </span>
-          </form>
-
-          <p className="mt-6">
-            <Link href={checkoutHref(order.id)} className="label-caps inline-flex min-h-11 items-center text-bond-night underline underline-offset-8">
-              ← Volver a mis datos
-            </Link>
+    <div className="container-column pb-40 pt-10 md:pt-12 lg:pb-24">
+      <form id="pago-form" onSubmit={onSubmit} noValidate aria-busy={paying}>
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 className="label-caps text-bond-olive">Tarjeta</h2>
+          <p data-testid="tarjeta-de-prueba" className="text-xs text-bond-olive">
+            Tarjeta de prueba · no se cobra nada
           </p>
         </div>
+        <div className="mt-6 grid grid-cols-2 gap-6">
+          <TextField
+            id="card-number"
+            label="Número de tarjeta"
+            inputMode="numeric"
+            autoComplete="cc-number"
+            value={card.number}
+            onChange={(e) => setCard({ ...card, number: formatCardNumber(e.target.value) })}
+            error={cardErrors.number}
+            disabled={paying}
+            className="col-span-2"
+          />
+          <TextField
+            id="card-expiry"
+            label="Vencimiento"
+            inputMode="numeric"
+            autoComplete="cc-exp"
+            placeholder="MM/AA"
+            value={card.expiry}
+            onChange={(e) => setCard({ ...card, expiry: formatExpiry(e.target.value) })}
+            error={cardErrors.expiry}
+            disabled={paying}
+          />
+          <TextField
+            id="card-cvc"
+            label="Código (CVC)"
+            inputMode="numeric"
+            autoComplete="cc-csc"
+            maxLength={4}
+            value={card.cvc}
+            onChange={(e) => setCard({ ...card, cvc: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+            error={cardErrors.cvc}
+            disabled={paying}
+          />
+        </div>
 
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <OrderSummary data={summary} />
-          <p className="mt-3 text-sm text-bond-olive">Al pagar se generan tus entradas, una por asistente.</p>
-        </aside>
-      </div>
+        {failure && (
+          <div
+            ref={alertRef}
+            tabIndex={-1}
+            role="alert"
+            data-testid="pago-rechazado"
+            className="mt-8 border-l-2 border-bond-ember bg-bond-sand/40 p-5 text-bond-night"
+          >
+            <p className="flex items-start gap-2 font-medium">
+              <ErrorIcon />
+              <span>Pago rechazado</span>
+            </p>
+            <p className="mt-2 pl-7 text-sm">{failure.message}</p>
+            <p className="mt-2 pl-7 text-sm">Tus datos siguen guardados: puedes reintentar o volver a revisarlos.</p>
+          </div>
+        )}
 
-      <CheckoutBar total={summary.total} isExample={summary.isExample}>
+        <div className="mt-10 hidden lg:block">
+          <button
+            type="submit"
+            disabled={paying}
+            data-testid="pagar"
+            className={`${buttonBase} ${buttonTones.olive} w-full disabled:cursor-wait disabled:opacity-70`}
+          >
+            {label}
+            {!paying && <span aria-hidden>→</span>}
+          </button>
+        </div>
+        <WhenShowingPending>
+          <p className="mt-4 text-sm text-bond-olive">
+            Texto legal: <Pending text="[[PENDIENTE: texto legal del checkout (términos, privacidad y reembolsos)]]" />
+          </p>
+        </WhenShowingPending>
+        <span role="status" aria-live="polite" className="sr-only">
+          {paying ? "Procesando el pago…" : ""}
+        </span>
+      </form>
+
+      <OrderSummary data={summary} className="mt-12" />
+
+      <p className="mt-6">
+        <Link href={checkoutHref(order.id)} className={`${quietLink} text-bond-night`}>
+          <span aria-hidden className="mr-3">←</span>
+          Volver a mis datos
+        </Link>
+      </p>
+
+      <CheckoutBar total={summary.total}>
         <button type="submit" form="pago-form" disabled={paying} data-testid="pagar-barra" className={barButton}>
           {label}
           {!paying && <span aria-hidden>→</span>}

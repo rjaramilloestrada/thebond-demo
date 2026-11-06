@@ -85,7 +85,7 @@ async function setFlags(page, flags) {
       localStorage.setItem(
         key,
         JSON.stringify({
-          state: { forcePaymentDecline: false, forceSoldOut: false, fastReservationTimer: false, simulateLiveSales: false, ...value },
+          state: { forcePaymentDecline: false, forceSoldOut: false, fastReservationTimer: false, simulateLiveSales: false, showPending: false, ...value },
           version: 1,
         }),
       ),
@@ -102,23 +102,43 @@ async function openEdition(context, flags = {}) {
   await page.goto(`${BASE}/`);
   await setFlags(page, flags);
   await page.goto(EDITION);
-  await page.locator('[data-testid="ticket-type-tt-002-a"] button[aria-label="Más"]').waitFor({ state: "visible" });
+  await page.locator('[data-testid="open-sheet"]').waitFor({ state: "visible" });
+  return page;
+}
+
+/** Abre la hoja de compra con el CTA del hero y espera a que el selector esté hidratado (rediseño Quiet Bond). */
+async function openSheet(page) {
+  const open = page.locator('dialog[data-testid="purchase-sheet"][open]');
+  await page.locator('[data-testid="open-sheet"]').waitFor({ state: "visible" });
+  // Un clic antes de que React hidrate no hace nada: se reintenta hasta que la hoja abre
+  for (let i = 0; i < 12 && !(await open.count()); i++) {
+    await page.locator('[data-testid="open-sheet"]').click();
+    await open.waitFor({ timeout: 700 }).catch(() => {});
+  }
+  await open.waitFor();
   await page.waitForFunction(() => {
     const b = document.querySelector('[data-testid="ticket-type-tt-002-a"] button[aria-label="Más"]');
     return b && !b.disabled;
   });
-  return page;
 }
 
 async function plus(page, typeId, times) {
   const btn = page.locator(`[data-testid="ticket-type-${typeId}"] button[aria-label="Más"]`);
-  await btn.scrollIntoViewIfNeeded();
   for (let i = 0; i < times; i++) await btn.click();
+}
+
+/** Abre los bloques colapsables de asistentes para poder escribir en ellos. */
+async function openAttendees(page, n) {
+  for (let i = 0; i < n; i++) {
+    const block = page.locator(`[data-testid="attendee-${i}"]`);
+    if (!(await block.evaluate((el) => el.hasAttribute("open")))) await block.locator("summary").click();
+  }
 }
 
 async function fillDatos(page, attendees) {
   await page.fill("#buyer-name", "Comprador Demo");
   await page.fill("#buyer-email", "comprador@ejemplo.com");
+  await openAttendees(page, attendees);
   for (let i = 0; i < attendees; i++) {
     await page.fill(`#att-${i}-name`, `Asistente ${String(i + 1).padStart(2, "0")}`);
     await page.fill(`#att-${i}-email`, `asistente${String(i + 1).padStart(2, "0")}@ejemplo.com`);
@@ -129,6 +149,7 @@ async function fillDatos(page, attendees) {
 
 /** Compra completa por la interfaz: queda en la confirmación con las entradas impresas. */
 async function purchase(page, { a = 2, b = 0 } = {}) {
+  await openSheet(page);
   await plus(page, "tt-002-a", a);
   if (b) await plus(page, "tt-002-b", b);
   await page.getByRole("button", { name: /^Continuar/ }).first().click();
@@ -166,7 +187,8 @@ async function emailFrame(page) {
 
 async function p1TicketEmail() {
   const context = await newContext();
-  const page = await openEdition(context);
+  // Con "Mostrar pendientes" encendido los datos pendientes se ven como [[PENDIENTE]] (apagado se ven en calma: lo prueba e2e-presentacion)
+  const page = await openEdition(context, { showPending: true });
   await purchase(page, { a: 2, b: 1 });
   const link = page.locator('a[data-testid="ver-correo"]');
   await link.waitFor();
@@ -216,7 +238,8 @@ async function p1TicketEmail() {
 
 async function p2Ride() {
   const context = await newContext();
-  const page = await openEdition(context);
+  // El RIDE se revisa con "Mostrar pendientes" encendido: ahí los marcadores sí se ven
+  const page = await openEdition(context, { showPending: true });
   await purchase(page, { a: 2 });
   const link = page.locator('a[data-testid="ver-factura"]');
   await link.waitFor();
@@ -247,9 +270,9 @@ async function p2Ride() {
   await page.emulateMedia({ media: "print" });
   const hidden = await page.evaluate(() => {
     const vis = (sel) => [...document.querySelectorAll(sel)].every((e) => getComputedStyle(e).display === "none");
-    return { header: vis("header"), footer: vis("footer"), badge: vis(".demo-badge") };
+    return { header: vis("header"), footer: vis("footer"), pill: vis("[data-demo-pill]") };
   });
-  check(hidden.header && hidden.footer && hidden.badge, `En impresión se ocultan encabezado, pie y etiqueta: ${JSON.stringify(hidden)}`);
+  check(hidden.header && hidden.footer && hidden.pill, `En impresión se ocultan encabezado, pie y píldora Demo: ${JSON.stringify(hidden)}`);
   check(await mark.isVisible(), "La marca de agua debe seguir visible al imprimir");
   const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
   const pdfText = pdf.toString("latin1");
@@ -274,7 +297,7 @@ async function p3Reminder() {
   await frame.locator("img[data-qr]").first().waitFor();
   const text = (await frame.locator("body").textContent()).replace(/\s+/g, " ");
   check(/Tu bond es/i.test(text) && /mañana/i.test(text), "El recordatorio debe decir «Tu bond es mañana»");
-  check(/Horario/i.test(text) && /La sede/i.test(text), "Debe traer horario y sede");
+  check(/Horario/i.test(text) && /Cómo llegar/i.test(text), "Debe traer horario y cómo llegar");
   check((await frame.locator("img[data-qr]").count()) === 1, "El recordatorio lleva el QR de la entrada");
   const subject = (await page.locator('[data-testid="correo-asunto"]').textContent()).trim();
   check(/mañana/i.test(subject), `El asunto debe decir mañana: ${subject}`);
@@ -298,7 +321,8 @@ async function p4Transfer() {
   check(parsedOld && parsedOld.version === 1, "El token inicial debe verificar (versión 1)");
   check((await page.locator('[data-testid="entrada-asistente"]').textContent()).trim() === "Asistente 01", "La primera entrada es de Asistente 01");
 
-  // Formulario → modal propio → confirmar
+  // Formulario (detrás de "Transferir entrada") → modal propio → confirmar
+  await page.locator('[data-testid="transferir"] > summary').click();
   await page.fill("#transfer-name", "Asistente Nueva");
   await page.fill("#transfer-email", "nueva@ejemplo.com");
   await page.locator('[data-testid="transfer-enviar"]').click();
@@ -447,32 +471,31 @@ async function p5Waitlist() {
 
 /* Pulido */
 
-/** Rectángulos de texto y controles visibles que cruzan el rectángulo de la etiqueta DEMO. */
-async function badgeOverlaps(page) {
+/** Texto y controles visibles que cruzan el rectángulo de la píldora Demo (y que ella realmente taparía). */
+async function pillOverlaps(page) {
   return page.evaluate(() => {
-    const badge = document.querySelector(".demo-badge");
-    if (!badge) return { error: "No hay etiqueta DEMO" };
-    const b = badge.getBoundingClientRect();
-    const style = getComputedStyle(badge);
+    const pill = document.querySelector("[data-demo-pill]");
+    if (!pill) return { error: "No hay píldora Demo" };
+    const b = pill.getBoundingClientRect();
     const hit = [];
-    const sel = "a, button, input, select, textarea, label, h1, h2, h3, h4, p, li, dt, dd, summary, th, td, span.label-caps";
+    const sel = "a, button, input, select, textarea, label, h1, h2, h3, h4, p, li, dt, dd, summary, th, td, span.label-caps, time";
     for (const el of document.querySelectorAll(sel)) {
-      if (badge.contains(el)) continue;
+      if (pill.contains(el) || el === pill) continue;
       const cs = getComputedStyle(el);
       if (cs.visibility === "hidden" || cs.display === "none" || Number(cs.opacity) === 0) continue;
       if (el.closest("[inert], [aria-hidden='true']")) continue;
       const r = el.getBoundingClientRect();
       if (r.width < 2 || r.height < 2) continue;
-      if (cs.clipPath !== "none" || cs.clip !== "auto") continue; // `sr-only` (enlace «Saltar al contenido»: solo aparece con foco)
-      const overlaps = r.left < b.right && r.right > b.left && r.top < b.bottom && r.bottom > b.top;
-      if (!overlaps) continue;
-      // Cuenta solo si el elemento realmente queda debajo de la etiqueta (la etiqueta lo tapa)
+      if (cs.clipPath !== "none" || cs.clip !== "auto") continue; // `sr-only`
+      if (!(r.left < b.right && r.right > b.left && r.top < b.bottom && r.bottom > b.top)) continue;
       const cx = Math.min(Math.max(r.left + r.width / 2, b.left + 1), b.right - 1);
       const cy = Math.min(Math.max(r.top + r.height / 2, b.top + 1), b.bottom - 1);
       const top = document.elementFromPoint(cx, cy);
-      if (top && badge.contains(top)) hit.push(`${el.tagName.toLowerCase()}: ${(el.textContent ?? "").trim().slice(0, 40)}`);
+      if (top && pill.contains(top)) hit.push(`${el.tagName.toLowerCase()}: ${(el.textContent ?? "").trim().slice(0, 40)}`);
     }
-    return { position: style.position, rect: { top: Math.round(b.top), bottom: Math.round(b.bottom) }, hit };
+    const header = pill.closest("header");
+    const pos = (e) => (e ? getComputedStyle(e).position : "none");
+    return { inHeader: Boolean(header), headerPosition: pos(header), pillPosition: pos(pill), onScreen: b.bottom > 0 && b.top < innerHeight, hit };
   });
 }
 
@@ -488,59 +511,79 @@ async function scrollSweep(page, fn) {
   return results;
 }
 
-async function p6aBadge() {
+async function p6aPill() {
   const context = await newContext();
   const page = await openEdition(context);
   const visited = [];
   async function sweep(label) {
     await page.waitForTimeout(500);
-    const rs = await scrollSweep(page, () => badgeOverlaps(page));
+    const rs = await scrollSweep(page, () => pillOverlaps(page));
     for (const r of rs) {
       check(!r.error, `${label}: ${r.error}`);
-      check(r.position !== "fixed" && r.position !== "sticky", `${label}: en móvil la etiqueta no debe flotar (position ${r.position})`);
-      check(r.hit.length === 0, `${label}: la etiqueta DEMO tapa ${r.hit.join(" | ")}`);
+      check(r.inHeader, `${label}: la píldora debe estar dentro del encabezado`);
+      check(r.headerPosition !== "fixed" && r.headerPosition !== "sticky" && r.pillPosition !== "fixed", `${label}: la píldora no debe flotar (encabezado ${r.headerPosition}, píldora ${r.pillPosition})`);
+      check(r.hit.length === 0, `${label}: la píldora Demo tapa ${r.hit.join(" | ")}`);
     }
-    visited.push(`${label} (${rs.length} posiciones)`);
+    visited.push(`${label} (${rs.length})`);
     await page.evaluate(() => window.scrollTo(0, 0));
   }
   await sweep("edición");
-  await plus(page, "tt-002-a", 2); // aparece la barra fija de compra
-  await sweep("edición con barra fija");
+  await openSheet(page);
+  await plus(page, "tt-002-a", 2);
+  // La píldora sigue estando, pero la hoja modal es lo que queda a la vista: se cierra con Esc
+  await page.keyboard.press("Escape");
+  await page.locator('dialog[data-testid="purchase-sheet"][open]').waitFor({ state: "detached", timeout: 3000 }).catch(() => {});
   await page.goto(`${BASE}/`);
   await sweep("home");
-  await page.goto(`${BASE}/ediciones/the-power-hour`);
-  await page.locator('[data-testid="ticket-type-tt-002-a"] button[aria-label="Más"]').waitFor();
-  await plus(page, "tt-002-a", 2);
-  await page.getByRole("button", { name: /^Continuar/ }).first().click();
-  await page.waitForURL(/\/comprar\/\?orden=ord-/);
-  await page.locator("#buyer-name").waitFor();
-  await sweep("datos");
-  await fillDatos(page, 2);
-  await page.getByRole("button", { name: /Ir a pagar/ }).click();
-  await page.waitForURL(/paso=pago/);
-  await page.locator('[data-testid="tarjeta-de-prueba"]').waitFor();
-  await sweep("pago");
-  await page.getByRole("button", { name: /^Pagar/ }).click();
-  await page.waitForURL(/confirmacion/);
-  await page.locator('[data-testid="printed-ticket"]').first().waitFor();
-  await page.waitForTimeout(4500);
-  await sweep("confirmación");
-  await page.locator('a[data-testid="ver-correo"]').click();
-  await page.waitForURL(/\/correo\//);
-  await emailFrame(page);
-  await sweep("correo");
-  await page.goBack();
-  await page.locator('a[data-testid="ver-factura"]').click();
-  await page.waitForURL(/\/factura\//);
-  await page.locator('[data-testid="ride"]').waitFor();
-  await sweep("factura");
-  await page.goBack();
-  await page.locator('[data-testid="mi-entrada"]').first().click();
-  await page.waitForURL(/\/entrada\//);
-  await page.locator('[data-testid="entrada"]').waitFor();
-  await sweep("mi entrada");
+  await page.goto(`${BASE}/ediciones/the-first-experience`);
+  await sweep("edición pasada");
   await context.close();
-  return `en 390 px la etiqueta es una franja en el flujo (no flota) y no tapa nada en: ${visited.join(", ")}`;
+
+  // Compra completa: datos, pago, confirmación, correo, factura y mi entrada
+  const ctx2 = await newContext();
+  const pg = await openEdition(ctx2);
+  await openSheet(pg);
+  await plus(pg, "tt-002-a", 2);
+  await pg.getByRole("button", { name: /^Continuar/ }).first().click();
+  await pg.waitForURL(/\/comprar\/\?orden=ord-/);
+  await pg.locator("#buyer-name").waitFor();
+  const sweep2 = async (label) => {
+    await pg.waitForTimeout(500);
+    const rs = await scrollSweep(pg, () => pillOverlaps(pg));
+    for (const r of rs) {
+      check(!r.error && r.inHeader, `${label}: ${r.error ?? "la píldora debe estar en el encabezado"}`);
+      check(r.hit.length === 0, `${label}: la píldora Demo tapa ${r.hit.join(" | ")}`);
+    }
+    visited.push(`${label} (${rs.length})`);
+    await pg.evaluate(() => window.scrollTo(0, 0));
+  };
+  await sweep2("datos");
+  await fillDatos(pg, 2);
+  await pg.getByRole("button", { name: /Ir a pagar/ }).click();
+  await pg.waitForURL(/paso=pago/);
+  await pg.locator('[data-testid="tarjeta-de-prueba"]').waitFor();
+  await sweep2("pago");
+  await pg.getByRole("button", { name: /^Pagar/ }).click();
+  await pg.waitForURL(/confirmacion/);
+  await pg.locator('[data-testid="printed-ticket"]').first().waitFor();
+  await pg.waitForTimeout(4500);
+  await sweep2("confirmación");
+  await pg.locator('a[data-testid="ver-correo"]').click();
+  await pg.waitForURL(/\/correo\//);
+  await emailFrame(pg);
+  await sweep2("correo");
+  await pg.goBack();
+  await pg.locator('a[data-testid="ver-factura"]').click();
+  await pg.waitForURL(/\/factura\//);
+  await pg.locator('[data-testid="ride"]').waitFor();
+  await sweep2("factura");
+  await pg.goBack();
+  await pg.locator('[data-testid="mi-entrada"]').first().click();
+  await pg.waitForURL(/\/entrada\//);
+  await pg.locator('[data-testid="entrada"]').waitFor();
+  await sweep2("mi entrada");
+  await ctx2.close();
+  return `390 px: la píldora Demo vive dentro del encabezado (no flota) y no tapa nada en: ${visited.join(", ")}`;
 }
 
 async function visibleContinuar(page) {
@@ -559,40 +602,93 @@ async function visibleContinuar(page) {
   });
 }
 
-async function p6bOneContinuar() {
+/**
+ * Con el rediseño, el CTA de compra siempre está a un pulgar: el del hero, o la
+ * barra fija (un solo botón "Get your ticket") cuando el hero ya pasó. Nunca hay
+ * dos botones de compra a la vez, y «Continuar» solo existe dentro de la hoja abierta.
+ */
+async function p6bOneCta() {
   const context = await newContext();
   const page = await openEdition(context);
-  await plus(page, "tt-002-a", 1);
-  await page.waitForTimeout(500);
-  const footerVisible = () =>
+  await page.waitForTimeout(600);
+  const state = () =>
     page.evaluate(() => {
-      const f = document.querySelector("footer");
-      if (!f) return false;
-      const r = f.getBoundingClientRect();
-      return r.top < innerHeight && r.bottom > 0;
+      const vis = (el) => {
+        if (!el || el.closest("[inert], [aria-hidden='true']")) return false;
+        const cs = getComputedStyle(el);
+        if (cs.visibility === "hidden" || cs.display === "none" || Number(cs.opacity) < 0.5) return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 1 && r.bottom > 0 && r.top < innerHeight;
+      };
+      const hero = vis(document.querySelector('[data-testid="open-sheet"]'));
+      const sticky = vis(document.querySelector('[data-testid="sticky-open-sheet"]'));
+      const f = document.querySelector("footer").getBoundingClientRect();
+      return { hero, sticky, footer: f.top < innerHeight && f.bottom > 0 };
     });
-  let max = 0;
-  let positions = 0;
-  const missing = [];
-  const seen = new Set();
-  const results = await scrollSweep(page, async (y) => ({ y, ids: await visibleContinuar(page), footer: await footerVisible() }));
-  // Barrido fino también, para no perder la transición entre la barra y el botón de la página
-  for (let y = 0; y < 6000; y += 120) {
+  const results = [];
+  for (let y = 0; y < 7000; y += 140) {
     await page.evaluate((top) => window.scrollTo(0, top), y);
-    await page.waitForTimeout(320); // deja terminar la transición de la barra
-    results.push({ y, ids: await visibleContinuar(page), footer: await footerVisible() });
+    await page.waitForTimeout(950); // deja terminar la transición de la barra
+    results.push({ y, ...(await state()), continuar: await visibleContinuar(page) });
   }
-  for (const r of results) {
-    positions += 1;
-    max = Math.max(max, r.ids.length);
-    r.ids.forEach((id) => seen.add(id));
-    if (r.ids.length > 1) throw new Error(`Con scroll ${r.y} se ven ${r.ids.length} «Continuar» a la vez: ${r.ids.join(", ")}`);
-    if (r.ids.length === 0 && !r.footer) missing.push(r.y);
-  }
-  check(missing.length === 0, `Hay posiciones sin ningún «Continuar» alcanzable (fuera del pie): scroll ${missing.join(", ")}`);
-  check(seen.has("sticky-continuar") && seen.has("continuar"), `Deben alternarse la barra y el botón de la página: ${[...seen].join(", ")}`);
+  const missing = results.filter((r) => !r.hero && !r.sticky && !r.footer).map((r) => r.y);
+  const both = results.filter((r) => r.hero && r.sticky).map((r) => r.y);
+  check(missing.length === 0, `Hay posiciones sin ningún CTA de compra alcanzable (fuera del pie): scroll ${missing.join(", ")}`);
+  check(both.length === 0, `El CTA del hero y la barra fija no deben verse a la vez: scroll ${both.join(", ")}`);
+  check(results.some((r) => r.hero) && results.some((r) => r.sticky), "Deben alternarse el CTA del hero y la barra fija");
+  check(results.every((r) => r.continuar.length === 0), "«Continuar» no debe verse con la hoja cerrada");
+  const label = (await page.locator('[data-testid="sticky-open-sheet"]').textContent()).replace(/\s+/g, " ").trim();
+  check(/^Get your ticket/.test(label), `La barra fija es un solo botón «Get your ticket»: «${label}»`);
+
+  // Con la hoja abierta hay exactamente un «Continuar»
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await openSheet(page);
+  await plus(page, "tt-002-a", 1);
+  const ids = await visibleContinuar(page);
+  check(ids.length === 1 && ids[0] === "continuar", `Con la hoja abierta debe verse un solo «Continuar»: ${ids.join(", ")}`);
+  const inert = await page.evaluate(() => document.querySelector("main").matches(":modal") || getComputedStyle(document.querySelector("dialog[open]")).display !== "none");
+  check(inert, "La hoja debe ser modal");
   await context.close();
-  return `390 px, con selección: máximo ${max} «Continuar» visible en ${positions} posiciones de scroll; se alternan ${[...seen].join(" ↔ ")} y nunca falta uno fuera del pie`;
+  return `390 px: ${results.length} posiciones de scroll; el CTA del hero y la barra fija (un solo botón) se alternan sin solaparse y nunca falta uno fuera del pie; «Continuar» solo dentro de la hoja abierta (1 visible)`;
+}
+
+/** Con prefers-reduced-motion: sin loops, y la hoja de compra solo hace un fundido (opacity). */
+async function p6dReducedSheet() {
+  const run = async (reduced) => {
+    const context = await newContext({ reducedMotion: reduced ? "reduce" : "no-preference" });
+    const page = await openEdition(context);
+    await page.waitForTimeout(1800);
+    const loops = await page.evaluate(() =>
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getComputedTiming().iterations === Infinity)
+        .map((a) => a.effect.target?.className?.toString().slice(0, 40) ?? "?"),
+    );
+    // Se espía la animación de entrada de la hoja
+    await page.evaluate(() => {
+      window.__sheetProps = new Set();
+      const obs = setInterval(() => {
+        for (const anim of document.getAnimations()) {
+          const t = anim.effect?.target;
+          if (t instanceof Element && t.matches("dialog.sheet-dialog")) for (const kf of anim.effect.getKeyframes()) for (const k of Object.keys(kf)) window.__sheetProps.add(k);
+        }
+      }, 16);
+      window.__stopSpy = () => clearInterval(obs);
+    });
+    await openSheet(page);
+    await page.waitForTimeout(900);
+    const props = await page.evaluate(() => [...window.__sheetProps]);
+    await context.close();
+    return { loops, props };
+  };
+  const reduced = await run(true);
+  check(reduced.loops.length === 0, `Con movimiento reducido no debe haber animaciones en bucle: ${reduced.loops.join(", ")}`);
+  const allowed = new Set(["opacity", "offset", "easing", "composite", "computedOffset"]);
+  check(reduced.props.every((p) => allowed.has(p)), `La hoja de compra solo puede tocar opacity: ${reduced.props.join(", ")}`);
+  const normal = await run(false);
+  check(normal.loops.length > 0, "Control: sin la preferencia, el atardecer debe animarse en bucle");
+  check(normal.props.includes("transform"), `Control: la hoja debe deslizarse sin la preferencia: ${normal.props.join(", ")}`);
+  return `reduce: 0 bucles y la hoja anima [${reduced.props.join(", ")}]; control sin preferencia: ${normal.loops.length} bucle(s) y la hoja anima [${normal.props.join(", ")}]`;
 }
 
 /** Muestrea cada cuadro lo que anima el ticket impreso, desde antes de pagar. */
@@ -628,6 +724,7 @@ async function sampleTickets(page) {
 async function runTicketMotion(reduced) {
   const context = await newContext({ reducedMotion: reduced ? "reduce" : "no-preference" });
   const page = await openEdition(context);
+  await openSheet(page);
   await plus(page, "tt-002-a", 2);
   await page.getByRole("button", { name: /^Continuar/ }).first().click();
   await page.waitForURL(/\/comprar\/\?orden=ord-/);
@@ -676,9 +773,10 @@ const cases = [
   ["Existe la vista previa del recordatorio «Tu bond es mañana»", p3Reminder],
   ["Transferir invalida el QR anterior y genera uno nuevo", p4Transfer],
   ["Edición agotada: lista de espera → cancelar una orden → correo de aviso con vista previa", p5Waitlist],
-  ["Pulido (a): la etiqueta DEMO no tapa texto ni CTAs en 390 px", p6aBadge],
-  ["Pulido (b): un solo «Continuar» visible a la vez en 390 px", p6bOneContinuar],
+  ["Pulido (a): la píldora Demo (en el encabezado) no tapa texto ni CTAs en 390 px", p6aPill],
+  ["Pulido (b): el CTA de compra siempre a un pulgar, sin duplicados, en 390 px", p6bOneCta],
   ["Pulido (c): con prefers-reduced-motion el ticket impreso solo hace fundido", p6cReducedMotion],
+  ["Pulido (d): con prefers-reduced-motion no hay bucles y la hoja de compra solo hace fundido", p6dReducedSheet],
 ];
 
 let failed = 0;

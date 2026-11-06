@@ -6,14 +6,15 @@ import { buttonBase, buttonTones, type ButtonTone } from "@/components/ui/button
 import { useEditionLive } from "./useEditionLive";
 
 /**
- * CTA principal "Get your ticket". Si la edición está agotada (incluye el
- * interruptor `forceSoldOut` del panel de demo) pasa a "Lista de espera".
+ * Un solo CTA "Get your ticket" que lleva a la edición (`#entradas` abre la hoja
+ * de compra). Si la edición está agotada (incluye el interruptor `forceSoldOut`
+ * del demo) pasa a "Lista de espera".
  */
 export function EditionCta({
   initial,
   href,
   soldOutHref,
-  tone = "butter",
+  tone = "olive",
   className = "",
   label = "Get your ticket",
   soldOutLabel = "Lista de espera",
@@ -31,7 +32,7 @@ export function EditionCta({
   return (
     <Link href={soldOut ? soldOutHref : href} className={`${buttonBase} ${buttonTones[tone]} ${className}`}>
       {soldOut ? soldOutLabel : label}
-      <span aria-hidden className="transition-transform duration-[var(--dur-fast)] group-hover:translate-x-1">
+      <span aria-hidden className="transition-transform duration-[var(--dur-base)] group-hover:translate-x-1">
         →
       </span>
     </Link>

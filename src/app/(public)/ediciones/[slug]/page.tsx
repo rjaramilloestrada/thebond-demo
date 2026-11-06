@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isPending(edition.dateLabel)) parts.push(edition.dateLabel + ".");
   const description = parts.join(" ");
   const title = `${edition.title} · Edición ${edition.number}`;
-  const image = `/placeholders/${edition.heroAsset}-1280.webp`;
+  const image = `/placeholders/${edition.heroAsset}-clean-1280.webp`;
   return {
     title,
     description,

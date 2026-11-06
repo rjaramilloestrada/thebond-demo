@@ -27,10 +27,10 @@ export function FieldError({ id, children }: { id: string; children: ReactNode }
 }
 
 const inputBase =
-  "mt-1 min-h-12 w-full border-0 border-b-2 bg-transparent px-0 py-2 text-lg text-bond-night placeholder:text-bond-olive disabled:cursor-not-allowed disabled:opacity-60";
+  "mt-1 min-h-12 w-full border-0 border-b bg-transparent px-0 py-2 text-lg text-bond-night placeholder:text-bond-olive disabled:cursor-not-allowed disabled:opacity-60";
 
 function borderFor(error?: string): string {
-  return error ? "border-bond-ember" : "border-bond-night/70";
+  return error ? "border-b-2 border-bond-ember" : "border-bond-night/60";
 }
 
 interface BaseProps {

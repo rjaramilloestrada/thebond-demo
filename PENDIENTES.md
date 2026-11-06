@@ -9,7 +9,7 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 | # | Pendiente | Origen | Dónde aparece |
 |---|---|---|---|
 | 1 | **Parcial.** Logo y monograma BO recibidos como JPG 1080×1080 (`assets/brand/`) y vectorizados por IGNIS (`npm run logos`, trazado con potrace). Siguen pendientes: archivos SVG vectoriales oficiales, fuentes oficiales y el resto de la paleta oficial. **Oliva confirmada desde el logo (Fase 3, decisión de Rafa):** `--bond-olive` ahora es `#5a5c44` (antes `#5e6447`); moss, cream, sand, ember, sun, night y butter siguen siendo aproximados | Brief 10 | `src/components/brand/Monogram.tsx`, `src/components/brand/Logo.tsx`, `src/components/brand/svg/` (generado), `assets/brand/`, `src/styles/tokens.css` (paleta aproximada), `src/app/layout.tsx` (fuentes aproximadas), `/tokens` |
-| 2 | Fotos originales de la ed. 001 en alta resolución | Brief 10 | `public/placeholders/galeria-001-01…06` y `hero-edicion` (generados por `scripts/generate-placeholders.mjs`), `src/seed/seed.ts` |
+| 2 | Fotos originales de la ed. 001 en alta resolución, y foto de portada de la ed. 002 (`portada-edicion`, la imagen grande del home). **Rediseño:** cada placeholder tiene variante limpia (por defecto) y rotulada (con "Mostrar pendientes") | Brief 10 | `public/placeholders/galeria-001-01…06`, `hero-edicion` y `portada-edicion` (generados por `scripts/generate-placeholders.mjs`), `src/seed/seed.ts`, `src/components/PlaceholderImage.tsx` |
 | 3 | Datos de la próxima edición: nombre confirmado, fecha, sede, aforo, precios por etapa y cronograma | Brief 10 | `src/seed/seed.ts` (ed. 002: `dateLabel`, `venueName`, `venueAddress`, `schedule`; aforo 60 de ejemplo; precios `$XX`) |
 | 4 | Permiso para mostrar los logos de las marcas aliadas | Brief 10 | `public/placeholders/logo-marca-*`, `src/seed/seed.ts` (`brands`) |
 | 5 | Política de reembolsos y términos | Brief 10 | `src/seed/seed.ts` (`faq` de la ed. 002: reembolsos, privacidad, términos) |
@@ -29,7 +29,7 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 | 14 | Sede, dirección, fecha y hora de inicio de la ed. 002 | `src/seed/seed.ts` → ed. 002 |
 | 15 | Cronograma de la ed. 002 | `src/seed/seed.ts` → ed. 002 `schedule` |
 | 16 | Nombres y roles de speakers y coaches de la ed. 002, y sus fotos | `src/seed/seed.ts` → ed. 002 `speakers`, `public/placeholders/speaker-01…03` |
-| 17 | Nombres y descripciones de los tipos de entrada de la ed. 002 (hoy "Entrada A/B · ejemplo") | `src/seed/seed.ts` → `tt-002-a`, `tt-002-b` |
+| 17 | Nombres y descripciones de los tipos de entrada de la ed. 002 (hoy "Entrada A" / "Entrada B"; el rótulo "ejemplo" salió de los nombres con el rediseño, la nota única es "Precios de ejemplo") | `src/seed/seed.ts` → `tt-002-a`, `tt-002-b` |
 | 18 | Precios reales, cupos por etapa y fechas de corte de Preventa / General / Last call (hoy montos internos de ejemplo, en pantalla `$XX`, sin fechas) | `src/seed/seed.ts` → `stages()` |
 | 19 | Aforo real de la ed. 002 y reparto por tipo (hoy 60 de ejemplo: 40 + 20) | `src/seed/seed.ts` → ed. 002 `capacity`, `tt-002-*.capacity` |
 | 20 | Campos por asistente definitivos de la ed. 002 (talla de camiseta y nivel son ejemplos del brief; sus opciones son genéricas) | `src/seed/seed.ts` → `attendeeFields` |
@@ -78,6 +78,17 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 | 48 | Cuándo se envía el recordatorio "Tu bond es mañana" (hoy se genera al pedir la vista previa; en producción lo enviaría un proceso programado la víspera, ¿a qué hora?) | `src/services/ticket-service.ts` (`ensureReminder`) |
 | 49 | Imágenes en los correos reales: Gmail no muestra QR incrustados como `data:`; en producción el QR y el logo deben ir como imagen alojada (URL pública o CID). El logo ya sale de `public/email/*.png` con el dominio del sitio (depende de #7) | `src/services/preview-service.ts` (`qrDataUrl`), `src/emails/parts.tsx` |
 
+## B5. Rediseño Quiet Bond (cambios y copy nuevo)
+
+Todo dato que no está en el brief sigue registrado arriba. Con el rediseño, los pendientes **no se ven por defecto** (modo presentación): se encienden con "Mostrar pendientes" en la píldora Demo y entonces aparecen resaltados donde siempre (misma lista). Lo que cambia es el copy nuevo, que **requiere aprobación de la clienta**:
+
+| # | Pendiente | Dónde aparece |
+|---|---|---|
+| 50 | Copy de los teasers de revelación, inspirado en los reveals de su Instagram (no son frases del brief): "Speaker reveal · soon", "Venue reveal · soon", "Schedule reveal · soon", "Partners reveal · soon", "Date reveal / Date & venue reveal · soon", "Policy reveal · soon" | `src/components/Pending.tsx` (`Teaser`), `EditionMeta.tsx`, `EditionDetails.tsx`, `BondingWith.tsx`, `Faq.tsx` |
+| 51 | Copy nuevo de la interfaz, escrito por IGNIS, mínimo: "Tu entrada" (título de la hoja), "¿Tienes un código?", "Luego General · $XX", "Reservamos tu lugar por 10:00 min. Aún no se cobra.", "Precios de ejemplo", "Quedan N cupos", "Tu reserva" (reloj), "Quiénes asisten / Quién asiste", "Usar mis datos", "Transferir entrada", "Stay close." (lista de espera), "Preparando tu correo y tu factura…". Se mantienen del brief: "Move. Connect. Belong.", "Come solo. Leave connected.", "All spots taken.", "The first of many. Stay close.", "See you in the next bond", "Your ticket includes" y "Get your ticket" | `src/components/home/*`, `src/components/edition/*`, `src/components/checkout/*`, `src/components/post-compra/*`, `src/emails/*` |
+| 52 | Títulos de las cuatro piezas de "Your ticket includes" en inglés ("Experiences", "The Bond Bag", "The Bond Table", "The Lucky Bond"), según el pedido de Rafa; el brief nombra "Experiencias" en español | `src/seed/seed.ts` → `includes` |
+| 53 | "Bonding with" ahora es una fila estática de nombres (sin logos): el logo de cada marca aparece cuando haya permiso y archivo (ver #4); mientras tanto solo se muestran las marcas con nombre real (FIT101) y "Partners reveal · soon" | `src/components/edition/BondingWith.tsx` |
+
 ## C. Decisiones técnicas para Rafa (no son datos de la clienta)
 
 - **TypeScript 7.0.2**: el build de Next 16.4.5 y `tsc --noEmit` funcionan con TS 7. `typescript-eslint` aún no lo soporta, así que `eslint.config.mjs` redirige solo el lint a `typescript-6` (devDependency). Retirar el redireccionamiento cuando typescript-eslint soporte TS ≥ 7.1.
@@ -85,6 +96,7 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 - **GitHub Pages**: Rafa debe activar Settings → Pages → Build and deployment → Source: **GitHub Actions** (una sola vez) para que el workflow publique.
 - **html5-qrcode** (sin publicaciones desde abr-2023) y **xlsx 0.18.5** de npm (el CDN oficial de SheetJS no responde): se evalúan en las Fases 5 y 6.
 - **Colores de los correos (Fase 4).** Los clientes de correo no entienden variables CSS, así que `scripts/generate-email-theme.mjs` lee `src/styles/tokens.css` y escribe `generated/email-theme.json` con los ocho colores de marca (corre en `predev`, `prebuild` y `pretest`; un test falla si el JSON se desfasa). Ese JSON es la **única excepción documentada** a "ningún hex fuera de tokens.css"; ningún archivo de `src/` tiene hex.
-- **Etiqueta "DEMO" en móvil (Fase 4).** Para que nunca tape texto ni botones, en móvil es una franja de 28 px en el flujo, arriba de la página (y el encabezado baja esa altura); desde 768 px sigue siendo la etiqueta flotante abajo a la izquierda. Si Rafa prefiere la flotante, hay que resolver el choque con la barra fija de compra de otro modo.
+- **Píldora "Demo" (rediseño, reemplaza la franja/etiqueta de la Fase 4).** Vive dentro del encabezado de todas las pantallas (nunca flota ni tapa contenido) y abre una hoja con "Demo · datos simulados", "Mostrar pendientes" y "Reiniciar demo". El panel completo con tour (Fase 6) irá sobre ese mismo botón. Aviso: la etiqueta permanente "DEMO · datos simulados" del brief 6.6 ahora es esa hoja (y el texto del pie de los correos).
+- **Modo presentación (rediseño).** `showPending` apagado por defecto: la clienta ve el sitio limpio y tú lo enciendes para mostrar qué falta. La semilla subió a la versión 2 (nombres "Entrada A/B", títulos de "includes"): al abrir el demo, el navegador vuelve a los datos semilla una sola vez.
 - **Prueba de la lista de espera (Fase 4).** Cancelar una orden no tiene pantalla hasta el `/admin` (Fase 5). El E2E ejecuta el `order-service` real dentro de la página (empaquetado con rolldown en un archivo temporal, no publicado) contra el mismo `localStorage`; el sitio no trae ganchos de pruebas.
 - **React Email (Fase 4).** `@react-email/components` 1.0.12 y `@react-email/render` 2.2.0 solo se descargan al abrir `/correo` (import dinámico).

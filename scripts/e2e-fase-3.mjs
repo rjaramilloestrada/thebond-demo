@@ -1,6 +1,8 @@
 /**
  * E2E de la Fase 3 (flujo de compra), un caso por criterio de "Compra" del brief
- * (sección 8). Corre a 390 px contra un servidor que sirva el export (`npx serve out`,
+ * (sección 8), actualizado al rediseño Quiet Bond: la compra empieza en la hoja de
+ * compra (se abre con "Get your ticket"), el cupón está detrás de "¿Tienes un
+ * código?" y las etapas de precio se abren con "Luego …". Corre a 390 px contra un servidor que sirva el export (`npx serve out`,
  * o la carpeta `out` copiada bajo `/thebond-demo/` para el build de Pages). Si el sitio
  * está bajo una subruta, va incluida en BASE_URL:
  *
@@ -60,7 +62,7 @@ const RUC_12 = RUC_OK.slice(0, 12);
 const browser = await chromium.launch();
 const pageErrors = [];
 
-async function newPage(flags = {}) {
+async function newPage(flags = {}, { sheet = true } = {}) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
   page.on("pageerror", (e) => pageErrors.push(e.message));
@@ -70,8 +72,36 @@ async function newPage(flags = {}) {
   await page.goto(`${BASE}/`);
   await setFlags(page, flags);
   await page.goto(EDITION);
-  await waitSelectorReady(page);
+  if (sheet) await openSheet(page);
   return { context, page };
+}
+
+/** Abre la hoja de compra con el CTA del hero y espera a que el selector esté hidratado. */
+async function openSheet(page) {
+  const open = page.locator('dialog[data-testid="purchase-sheet"][open]');
+  await page.locator('[data-testid="open-sheet"]').waitFor({ state: "visible" });
+  // Un clic antes de que React hidrate no hace nada: se reintenta hasta que la hoja abre
+  for (let i = 0; i < 12 && !(await open.count()); i++) {
+    await page.locator('[data-testid="open-sheet"]').click();
+    await open.waitFor({ timeout: 700 }).catch(() => {});
+  }
+  await open.waitFor();
+  await waitSelectorReady(page);
+}
+
+/** Despliega "¿Tienes un código?" y aplica un cupón. */
+async function applyCoupon(page, code) {
+  if (!(await page.locator("#cupon").isVisible())) await page.locator('[data-testid="cupon-toggle"]').click();
+  await page.fill("#cupon", code);
+  await page.getByRole("button", { name: "Aplicar" }).click();
+}
+
+/** Abre los bloques colapsables de asistentes para poder escribir en ellos. */
+async function openAttendees(page, n) {
+  for (let i = 0; i < n; i++) {
+    const block = page.locator(`[data-testid="attendee-${i}"]`);
+    if (!(await block.evaluate((el) => el.hasAttribute("open")))) await block.locator("summary").click();
+  }
 }
 
 /** Escribe los interruptores de demo en la forma que persiste zustand */
@@ -100,7 +130,6 @@ async function waitSelectorReady(page) {
 
 async function plus(page, typeId, times) {
   const btn = page.locator(`[data-testid="ticket-type-${typeId}"] button[aria-label="Más"]`);
-  await btn.scrollIntoViewIfNeeded();
   for (let i = 0; i < times; i++) await btn.click();
 }
 
@@ -114,6 +143,7 @@ async function seatsLeft(page) {
 async function fillDatos(page, attendees, taxId = CEDULA_OK) {
   await page.fill("#buyer-name", "Comprador Demo");
   await page.fill("#buyer-email", "comprador@ejemplo.com");
+  await openAttendees(page, attendees);
   for (let i = 0; i < attendees; i++) {
     await page.fill(`#att-${i}-name`, `Asistente ${String(i + 1).padStart(2, "0")}`);
     await page.fill(`#att-${i}-email`, `asistente${String(i + 1).padStart(2, "0")}@ejemplo.com`);
@@ -173,24 +203,27 @@ async function c2TypesAndStages() {
   check(count >= 2, `Se esperaban ≥ 2 tipos de entrada, hay ${count}`);
   for (let i = 0; i < count; i++) {
     const type = types.nth(i);
-    const stages = type.locator("ol > li");
+    const stages = type.locator("ol > li"); // dentro de "Luego …" (cerrado): se leen del DOM
     check((await stages.count()) === 3, `El tipo ${i + 1} no tiene 3 etapas`);
     const labels = (await stages.allTextContents()).map((t) => t.replace(/\s+/g, " ").trim());
     const current = type.locator('ol > li[aria-current="step"]');
     check((await current.count()) === 1, `El tipo ${i + 1} debe tener exactamente una etapa activa`);
     const currentText = (await current.textContent()).replace(/\s+/g, " ");
-    check(/Preventa/.test(currentText) && /Etapa actual/i.test(currentText), `Etapa activa incorrecta: ${currentText}`);
+    check(/Preventa/.test(currentText) && /Actual/i.test(currentText), `Etapa activa incorrecta: ${currentText}`);
+    // La hoja muestra el precio activo en grande y la siguiente etapa en UNA línea
+    const summary = (await type.locator("details > summary").first().textContent()).replace(/\s+/g, " ").trim();
+    check(/^Luego General/.test(summary), `La línea de la siguiente etapa debería decir "Luego General …": ${summary}`);
     check(/Próximamente/i.test(labels[1]) && /Próximamente/i.test(labels[2]), `Las siguientes deben decir Próximamente: ${labels.join(" | ")}`);
   }
   await context.close();
-  return `${count} tipos × 3 etapas; activa = Preventa; siguientes = Próximamente`;
+  return `${count} tipos × 3 etapas; activa = Preventa; siguientes = Próximamente; el cupón está oculto hasta "¿Tienes un código?"`;
 }
 
 async function c3Coupon() {
   const { context, page } = await newPage();
   await plus(page, "tt-002-b", 1);
-  await page.fill("#cupon", "bond10");
-  await page.getByRole("button", { name: "Aplicar" }).click();
+  check(!(await page.locator("#cupon").isVisible()), "El campo de cupón debe estar oculto hasta pulsar «¿Tienes un código?»");
+  await applyCoupon(page, "bond10");
   const ok = page.locator('[data-testid="cupon-ok"]');
   await ok.waitFor();
   const okText = (await ok.textContent()).trim();
@@ -212,10 +245,9 @@ async function c3Coupon() {
 
   // Cupón inválido
   await page.goto(EDITION);
-  await waitSelectorReady(page);
+  await openSheet(page);
   await plus(page, "tt-002-a", 1);
-  await page.fill("#cupon", "XXXX");
-  await page.getByRole("button", { name: "Aplicar" }).click();
+  await applyCoupon(page, "XXXX");
   const err = page.locator('[data-testid="cupon-error"]');
   await err.waitFor();
   const errText = (await err.textContent()).trim();
@@ -261,7 +293,6 @@ async function c4Reservation() {
 
   await page.getByRole("button", { name: "Volver a elegir" }).click();
   await page.waitForURL(/\/ediciones\/the-power-hour/);
-  await waitSelectorReady(page);
   await page.waitForFunction(
     (n) => {
       const t = [...document.querySelectorAll('[role="status"].sr-only')].find((e) => /Quedan/.test(e.textContent ?? ""));
@@ -290,6 +321,10 @@ async function c5Validation() {
     check((await page.locator(`#att-${i}-f-af-002-talla`).count()) === 1, `El asistente ${i + 1} debe pedir la talla`);
     check((await page.locator(`#att-${i}-f-af-002-nivel`).count()) === 1, `El asistente ${i + 1} debe pedir el nivel`);
   }
+
+  // Los asistentes son bloques colapsables: el primero abierto, el resto cerrados
+  check(await page.locator('[data-testid="attendee-0"]').evaluate((el) => el.hasAttribute("open")), "El primer asistente debe estar abierto");
+  check(!(await page.locator('[data-testid="attendee-1"]').evaluate((el) => el.hasAttribute("open"))), "El segundo asistente debe empezar cerrado");
 
   // Enviar vacío: errores y foco en el primero
   await page.getByRole("button", { name: /Ir a pagar/ }).click();
@@ -325,10 +360,12 @@ async function c5Validation() {
   check((await page.inputValue("#att-0-name")) === "Comprador Demo", "Usar mis datos debe copiar el nombre");
 
   // Un asistente sin talla (obligatoria) no deja avanzar
+  await openAttendees(page, 2);
   await page.fill("#att-1-name", "Asistente 02");
   await page.fill("#att-1-email", "asistente02@ejemplo.com");
   await page.selectOption("#att-0-f-af-002-talla", "M");
   await page.getByRole("button", { name: /Ir a pagar/ }).click();
+  await page.waitForFunction(() => document.activeElement?.id === "att-1-f-af-002-talla", null, { timeout: 3000 }).catch(() => {});
   const focus2 = await page.evaluate(() => document.activeElement?.id);
   check(focus2 === "att-1-f-af-002-talla", `Debe enfocar la talla faltante del asistente 2, está en ${focus2}`);
   await page.selectOption("#att-1-f-af-002-talla", "L");

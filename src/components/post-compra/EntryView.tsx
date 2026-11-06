@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Label } from "@/components/brand/Label";
 import { Monogram } from "@/components/brand/Monogram";
+import { EditionMeta } from "@/components/edition/EditionMeta";
 import { Pending } from "@/components/Pending";
 import { TicketQr } from "@/components/checkout/TicketQr";
-import { buttonBase, buttonTones } from "@/components/ui/button-styles";
+import { buttonBase, buttonTones, quietLink } from "@/components/ui/button-styles";
 import type { TokenState } from "@/domain/tickets";
 import { emailHref, editionHref } from "@/lib/routes";
 import { resolveToken, type TokenResolution } from "@/services/ticket-service";
@@ -15,7 +15,7 @@ import { useHasHydrated } from "@/store/hydrate";
 import { ReminderButton } from "./ReminderButton";
 import { TransferSection } from "./TransferSection";
 
-const shell = "surface-dark grain relative isolate overflow-hidden bg-bond-night text-bond-cream";
+const shell = "surface-mid relative isolate overflow-hidden bg-bond-olive text-bond-cream";
 
 const INVALID_REASON: Record<Exclude<TokenState, "valid">, string> = {
   transferred: "fue transferida",
@@ -79,18 +79,16 @@ export function EntryView({ token }: { token: string }) {
   if (res.state !== "valid" || !ticket || !edition) {
     const state = res.state === "valid" ? "unknown" : res.state;
     return (
-      <main id="contenido" className={shell}>
-        <div className="sunset-sun opacity-40" aria-hidden style={{ ["--sun-x" as string]: "50%", ["--sun-y" as string]: "-25%" }} />
-        <div className="container-editorial relative z-10 pb-28 pt-36 md:pb-40 md:pt-48">
-          <Label className="text-bond-sand">Mi entrada</Label>
-          <h1 data-testid="entrada-invalida" className="display-serif mt-5 max-w-3xl text-display-l">
+      <main id="contenido" className={`${shell} min-h-svh`}>
+        <div className="container-column relative z-10 pb-28 pt-36 md:pb-40 md:pt-48">
+          <h1 data-testid="entrada-invalida" className="display-serif text-display-l">
             Esta entrada ya no es <span className="accent-italic text-bond-butter">válida</span>
           </h1>
           <p data-testid="entrada-invalida-motivo" className="mt-5 text-lead text-bond-cream">
             ({INVALID_REASON[state]})
           </p>
-          <p className="mt-4 max-w-lg text-base text-bond-sand">{INVALID_HELP[state]}</p>
-          <Link href="/" className={`${buttonBase} ${buttonTones.butter} mt-10`}>
+          <p className="mt-4 text-base text-bond-cream">{INVALID_HELP[state]}</p>
+          <Link href="/" className={`${buttonBase} ${buttonTones.cream} mt-10`}>
             Volver al inicio
           </Link>
         </div>
@@ -98,22 +96,16 @@ export function EntryView({ token }: { token: string }) {
     );
   }
 
-  const cardLink = `${buttonBase} ${buttonTones.butter} w-full sm:w-auto`;
+  const link = `${quietLink} text-bond-cream hover:text-bond-butter`;
   return (
     <main id="contenido" className={shell}>
-      <div className="sunset-sun opacity-50" aria-hidden style={{ ["--sun-x" as string]: "50%", ["--sun-y" as string]: "-20%" }} />
-      <div className="container-editorial relative z-10 pb-24 pt-32 md:pb-36 md:pt-44">
-        <Label className="text-bond-sand">Mi entrada · Edición {edition.number}</Label>
-        <h1 className="display-serif mt-5 text-display-l">
+      <div className="container-column relative z-10 pb-24 pt-32 md:pb-36 md:pt-40">
+        <h1 className="display-serif text-display-l">
           Mi <span className="accent-italic text-bond-butter">entrada.</span>
         </h1>
 
         {notice && (
-          <p
-            role="status"
-            data-testid="transfer-ok"
-            className="mt-8 max-w-xl border border-bond-butter p-4 text-base text-bond-cream"
-          >
+          <p role="status" data-testid="transfer-ok" className="mt-8 border-l-2 border-bond-butter pl-4 text-base text-bond-cream">
             {notice}
           </p>
         )}
@@ -121,25 +113,21 @@ export function EntryView({ token }: { token: string }) {
         <article
           data-testid="entrada"
           aria-label={`Entrada de ${ticket.attendee.name}`}
-          className="mx-auto mt-12 w-full max-w-md bg-bond-cream text-bond-night md:mt-16"
+          className="mt-12 w-full bg-bond-cream text-bond-night md:mt-16"
         >
           <div className="flex items-start justify-between gap-4 p-6 pb-5 md:p-8 md:pb-6">
             <div className="min-w-0">
-              <p className="label-caps text-bond-olive">The Bond · Edición {edition.number}</p>
-              <h2 className="display-serif mt-3 text-heading">{edition.title}</h2>
-              <p className="mt-3 text-sm">
-                <Pending text={edition.dateLabel} />
-              </p>
-              <p className="text-sm text-bond-olive">
-                <Pending text={edition.venueName} />
-              </p>
+              <h2 className="display-serif text-heading">
+                <span className="accent-italic">{edition.number} —</span> {edition.title}
+              </h2>
+              <EditionMeta edition={edition} teaser={false} className="mt-3 text-bond-olive" />
             </div>
-            <Monogram size={64} title="" className="shrink-0 text-bond-night" />
+            <Monogram size={56} title="" className="shrink-0 text-bond-night" />
           </div>
 
           <div aria-hidden className="relative h-0 border-t-2 border-dashed border-bond-night/40">
-            <span className="absolute -left-3 -top-3 size-6 rounded-full bg-bond-night" />
-            <span className="absolute -right-3 -top-3 size-6 rounded-full bg-bond-night" />
+            <span className="absolute -left-3 -top-3 size-6 rounded-full bg-bond-olive" />
+            <span className="absolute -right-3 -top-3 size-6 rounded-full bg-bond-olive" />
           </div>
 
           <div className="flex flex-col items-center p-6 pt-8 text-center md:p-8 md:pt-10">
@@ -147,48 +135,33 @@ export function EntryView({ token }: { token: string }) {
               ticketId={ticket.id}
               version={ticket.version}
               label={`Código QR de la entrada de ${ticket.attendee.name}`}
-              size={256}
+              size={240}
             />
             <p className="label-caps mt-5 text-bond-olive" data-testid="entrada-codigo">
               {ticket.id.toUpperCase()}
               {ticket.version > 1 ? ` · QR ${ticket.version}` : ""}
             </p>
-            <p data-testid="entrada-asistente" className="display-serif mt-3 text-[1.75rem] leading-tight md:text-3xl">
+            <p data-testid="entrada-asistente" className="display-serif mt-3 text-[1.5rem] leading-tight md:text-3xl">
               {ticket.attendee.name}
             </p>
-            <p className="mt-2 text-sm">{ticketType ? <Pending text={ticketType.name} /> : "Entrada"}</p>
-            <p className="mt-4 text-sm text-bond-olive">Muestra este QR en la puerta.</p>
+            <p className="label-caps mt-2 text-bond-olive">{ticketType ? <Pending text={ticketType.name} dash /> : "Entrada"}</p>
           </div>
         </article>
 
-        <div className="mx-auto mt-10 grid max-w-md gap-4 sm:max-w-xl sm:grid-cols-2">
-          <ReminderButton ticketId={ticket.id} className={cardLink} />
-          <Link href={editionHref(edition.slug)} className={`${buttonBase} ${buttonTones.outlineDark} w-full sm:w-auto`}>
+        <nav aria-label="Acciones de la entrada" className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-1">
+          <ReminderButton ticketId={ticket.id} className={link} />
+          <Link href={editionHref(edition.slug)} className={link}>
             Ver la edición
           </Link>
-        </div>
-
-        {transferEmails.length > 0 && (
-          <div className="mx-auto mt-8 max-w-md sm:max-w-xl">
-            <p className="label-caps text-bond-sand">Correos de la transferencia</p>
-            <ul className="mt-3 grid gap-2">
-              {transferEmails.map((e) => (
-                <li key={e.id}>
-                  <Link
-                    href={emailHref(e.id)}
-                    data-testid="correo-transferencia"
-                    className="inline-flex min-h-11 items-center text-bond-cream underline underline-offset-4 hover:text-bond-butter"
-                  >
-                    {e.transfer?.role === "previous-holder" ? "Ver correo a la titular anterior" : "Ver correo a la nueva titular"}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+          {transferEmails.map((e) => (
+            <Link key={e.id} href={emailHref(e.id)} data-testid="correo-transferencia" className={link}>
+              {e.transfer?.role === "previous-holder" ? "Correo a la titular anterior" : "Correo a la nueva titular"}
+            </Link>
+          ))}
+        </nav>
 
         {!edition.isPast && (
-          <div className="mx-auto mt-14 max-w-md sm:max-w-xl">
+          <div className="mt-14">
             <TransferSection
               key={`${ticket.id}-${ticket.version}`}
               ticket={ticket}

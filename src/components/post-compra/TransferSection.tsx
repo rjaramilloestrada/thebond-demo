@@ -34,6 +34,7 @@ export function TransferSection({
   const [confirming, setConfirming] = useState<TransferTarget | null>(null);
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -68,43 +69,52 @@ export function TransferSection({
   }
 
   return (
-    <section aria-labelledby="transferir-titulo" data-testid="transferir" className="paper-edge bg-bond-cream p-6 text-bond-night md:p-8">
-      <h2 id="transferir-titulo" className="display-serif text-heading">
-        Transferir <span className="accent-italic">esta entrada</span>
-      </h2>
-      <p className="mt-3 max-w-prose text-base text-bond-olive">
-        ¿No puedes ir? Pásala a otra persona. Su QR será nuevo y el tuyo dejará de funcionar.
-      </p>
-      <form onSubmit={onSubmit} noValidate className="mt-6 grid gap-6">
-        <TextField
-          id="transfer-name"
-          label="Nombre de quien recibe"
-          autoComplete="off"
-          value={name}
-          error={errors.name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <TextField
-          id="transfer-email"
-          label="Correo de quien recibe"
-          type="email"
-          inputMode="email"
-          autoComplete="off"
-          value={email}
-          error={errors.email}
-          hint="Ahí le llega el correo con su QR."
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        {failure && (
-          <p role="alert" data-testid="transfer-error" className="flex items-start gap-2 border border-bond-ember p-4 text-sm font-medium">
-            <ErrorIcon />
-            <span>{failure}</span>
-          </p>
-        )}
-        <button type="submit" data-testid="transfer-enviar" className={`${buttonBase} ${buttonTones.night} w-full sm:w-fit`}>
-          Transferir entrada
-        </button>
-      </form>
+    <details
+      data-testid="transferir"
+      open={panelOpen}
+      onToggle={(e) => setPanelOpen(e.currentTarget.open)}
+      className="border-y border-bond-cream/30 text-bond-cream"
+    >
+      <summary className="flex min-h-16 cursor-pointer items-center justify-between gap-4 py-3">
+        <span className="display-serif text-heading">
+          Transferir <span className="accent-italic text-bond-butter">entrada</span>
+        </span>
+        <span aria-hidden className="details-plus text-xl leading-none transition-transform duration-[var(--dur-base)]">
+          +
+        </span>
+      </summary>
+      <div className="bg-bond-cream p-6 text-bond-night md:p-8">
+        <p className="text-sm text-bond-olive">Su QR será nuevo y el tuyo dejará de funcionar.</p>
+        <form onSubmit={onSubmit} noValidate className="mt-6 grid gap-6">
+          <TextField
+            id="transfer-name"
+            label="Nombre de quien recibe"
+            autoComplete="off"
+            value={name}
+            error={errors.name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            id="transfer-email"
+            label="Correo de quien recibe"
+            type="email"
+            inputMode="email"
+            autoComplete="off"
+            value={email}
+            error={errors.email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          {failure && (
+            <p role="alert" data-testid="transfer-error" className="flex items-start gap-2 border border-bond-ember p-4 text-sm font-medium">
+              <ErrorIcon />
+              <span>{failure}</span>
+            </p>
+          )}
+          <button type="submit" data-testid="transfer-enviar" className={`${buttonBase} ${buttonTones.olive} w-full sm:w-fit`}>
+            Transferir entrada
+          </button>
+        </form>
+      </div>
 
       <Modal
         open={Boolean(confirming)}
@@ -123,7 +133,7 @@ export function TransferSection({
               data-testid="transfer-confirmar"
               disabled={busy}
               onClick={() => void confirm()}
-              className={`${buttonBase} ${buttonTones.night} w-full disabled:cursor-wait disabled:opacity-70`}
+              className={`${buttonBase} ${buttonTones.olive} w-full disabled:cursor-wait disabled:opacity-70`}
             >
               {busy ? "Transfiriendo…" : "Sí, transferir"}
             </button>
@@ -149,6 +159,6 @@ export function TransferSection({
           </div>
         )}
       </Modal>
-    </section>
+    </details>
   );
 }

@@ -1,7 +1,11 @@
 /**
  * Genera los placeholders de imagen (brief 4.4) en /public/placeholders:
- * bloques con gradiente en los colores de la marca, grano y el nombre del asset
- * con su `[[PENDIENTE: ...]]`. Sin personas, sin stock, sin imágenes de Instagram.
+ * bloques con gradiente en los colores de la marca y grano. Sin personas, sin
+ * stock, sin imágenes de Instagram. Cada asset sale en dos variantes:
+ *   - LIMPIA  (`<nombre>-clean-<ancho>.<fmt>`): gradiente + grano, sin texto. Es la
+ *     que se ve por defecto (modo presentación apagado).
+ *   - ROTULADA (`<nombre>-<ancho>.<fmt>`): con el nombre del asset y su
+ *     `[[PENDIENTE: ...]]`. Solo se ve con "Mostrar pendientes" encendido.
  *
  * Los colores se leen de src/styles/tokens.css (única fuente de color).
  * Salida: AVIF + WebP en 640 / 1280 / 1920 px de ancho + un manifest JSON.
@@ -28,10 +32,11 @@ for (const k of ["olive", "moss", "cream", "sand", "ember", "sun", "night", "but
 const pad = (n) => String(n).padStart(2, "0");
 const assets = [
   { name: "hero-edicion", ratio: [16, 9], style: "sunset", pending: "foto de clase en ONNA" },
+  { name: "portada-edicion", ratio: [4, 5], style: "olive", pending: "foto de portada de la edición" },
   ...[1, 2, 3, 4, 5, 6].map((n) => ({
     name: `galeria-001-${pad(n)}`,
     ratio: n % 3 === 0 ? [1, 1] : [4, 5],
-    style: ["olive", "sunset", "moss", "sand", "ember", "night"][n - 1],
+    style: ["olive", "sand", "moss", "sand", "olive", "moss"][n - 1],
     pending: `foto ${n} de la ed. 001 en alta resolución`,
   })),
   { name: "sede-onna", ratio: [3, 2], style: "moss", pending: "foto o mapa estático de la sede" },
@@ -138,6 +143,42 @@ function labelSvg(asset, w, h) {
   return lines.join("");
 }
 
+/**
+ * Variante limpia: sobre el gradiente base, formas orgánicas muy desenfocadas
+ * (como sombras de hojas y luz baja), con la paleta de la marca. Sin texto y sin
+ * personas; da profundidad sin fingir una foto.
+ */
+function organic(style, w, h, seed) {
+  const rand = mulberry32(seed ^ 0x9e3779b9);
+  const light = isLight(style);
+  const lights = light ? [color.sand, color.butter] : [color.sand, color.butter, color.sun];
+  const darks = light ? [color.olive, color.moss] : [color.night, color.moss];
+  const blobs = [];
+  const n = 7;
+  for (let i = 0; i < n; i++) {
+    const isLightBlob = i % 3 === 0;
+    const pal = isLightBlob ? lights : darks;
+    const c = pal[Math.floor(rand() * pal.length)];
+    const cx = (0.1 + rand() * 0.8) * w;
+    const cy = (0.05 + rand() * 0.9) * h;
+    const rx = (0.12 + rand() * 0.22) * w;
+    const ry = rx * (1.6 + rand() * 1.4);
+    const rot = -70 + rand() * 140;
+    const op = isLightBlob ? (light ? 0.35 : 0.1 + rand() * 0.1) : light ? 0.1 + rand() * 0.08 : 0.22 + rand() * 0.18;
+    blobs.push(`<ellipse cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" rx="${rx.toFixed(0)}" ry="${ry.toFixed(0)}" transform="rotate(${rot.toFixed(0)} ${cx.toFixed(0)} ${cy.toFixed(0)})" fill="${c}" fill-opacity="${op.toFixed(2)}"/>`);
+  }
+  const blur = Math.max(w, h) * 0.045;
+  return `<defs><filter id="bl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="${blur.toFixed(1)}"/></filter></defs><g filter="url(#bl)">${blobs.join("")}</g>`;
+}
+
+/** Viñeta suave: centra la luz y da profundidad a la variante limpia (sin texto). */
+function vignette(w, h) {
+  return `<defs><radialGradient id="vg" cx="50%" cy="46%" r="78%">
+      <stop offset="0.55" stop-color="${color.night}" stop-opacity="0"/>
+      <stop offset="1" stop-color="${color.night}" stop-opacity="0.28"/>
+    </radialGradient></defs><rect width="${w}" height="${h}" fill="url(#vg)"/>`;
+}
+
 function grainBuffer(w, h, seed) {
   const rand = mulberry32(seed);
   const buf = Buffer.alloc(w * h * 4);
@@ -163,16 +204,23 @@ for (const asset of assets) {
   const variants = [];
   for (const width of WIDTHS) {
     const height = Math.round((width * rh) / rw);
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${background(asset.style, width, height)}${labelSvg(asset, width, height)}</svg>`;
-    const base = await sharp(Buffer.from(svg))
-      .composite([{ input: grainBuffer(width, height, seed + width), raw: { width, height, channels: 4 }, blend: "overlay" }])
-      .removeAlpha()
-      .toBuffer();
-    for (const format of ["avif", "webp"]) {
-      const file = `${asset.name}-${width}.${format}`;
-      const pipeline = sharp(base);
-      if (format === "avif") await pipeline.avif({ quality: 42, effort: 4 }).toFile(join(outDir, file));
-      else await pipeline.webp({ quality: 72 }).toFile(join(outDir, file));
+    for (const variant of ["labeled", "clean"]) {
+      const inner =
+        variant === "labeled"
+          ? `${background(asset.style, width, height)}${labelSvg(asset, width, height)}`
+          : `${background(asset.style, width, height)}${organic(asset.style, width, height, seed)}${isLight(asset.style) ? "" : vignette(width, height)}`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${inner}</svg>`;
+      const base = await sharp(Buffer.from(svg))
+        .composite([{ input: grainBuffer(width, height, seed + width), raw: { width, height, channels: 4 }, blend: "overlay" }])
+        .removeAlpha()
+        .toBuffer();
+      const stem = variant === "clean" ? `${asset.name}-clean` : asset.name;
+      for (const format of ["avif", "webp"]) {
+        const file = `${stem}-${width}.${format}`;
+        const pipeline = sharp(base);
+        if (format === "avif") await pipeline.avif({ quality: 42, effort: 4 }).toFile(join(outDir, file));
+        else await pipeline.webp({ quality: 72 }).toFile(join(outDir, file));
+      }
     }
     variants.push({ width, height });
   }
@@ -182,7 +230,7 @@ for (const asset of assets) {
     aspect: `${rw}/${rh}`,
     widths: variants,
   });
-  console.log(`✓ ${asset.name}`);
+  console.log(`✓ ${asset.name} (rotulada + limpia)`);
 }
 
 const manifestPath = join(root, "src/lib/placeholders.manifest.json");

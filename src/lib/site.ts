@@ -26,4 +26,4 @@ export function withBasePath(path: string): string {
 export const NOINDEX = process.env.NEXT_PUBLIC_NOINDEX === "1";
 
 /** Ruta de `/public` para la imagen Open Graph. Los metadatos la componen con `metadataBase`, que ya incluye la subruta. */
-export const OG_IMAGE = "/placeholders/hero-edicion-1280.webp";
+export const OG_IMAGE = "/placeholders/hero-edicion-clean-1280.webp";

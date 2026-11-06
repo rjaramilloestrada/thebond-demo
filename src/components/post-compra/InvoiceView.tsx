@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/brand/Logo";
-import { Label } from "@/components/brand/Label";
-import { Pending } from "@/components/Pending";
-import { buttonBase, buttonTones } from "@/components/ui/button-styles";
+import { Pending, WhenShowingPending } from "@/components/Pending";
+import { buttonBase, buttonTones, quietLink } from "@/components/ui/button-styles";
 import { formatMoney } from "@/domain/pricing";
 import { loadInvoicePreview, type InvoicePreview } from "@/services/preview-service";
 import { useDbStore } from "@/store/db-store";
@@ -58,18 +57,17 @@ export function InvoiceView({ invoiceId }: { invoiceId: string }) {
   }, [hydrated, invoiceId, exists]);
 
   return (
-    <main id="contenido" className="min-h-svh bg-bond-sand print:min-h-0 print:bg-transparent">
-      <div className="surface-dark grain relative isolate overflow-hidden bg-bond-night pb-8 pt-28 text-bond-cream md:pb-10 md:pt-32 print:hidden">
-        <div className="container-editorial relative z-10">
-          <Label className="text-bond-butter">Vista previa · factura electrónica de demo</Label>
-          <p className="mt-4 max-w-xl text-lead">Así se vería el RIDE de la factura. No tiene validez tributaria y no se envió al SRI.</p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+    <main id="contenido" className="min-h-svh bg-bond-sand pt-[4.5rem] text-bond-night md:pt-24 print:min-h-0 print:bg-transparent print:pt-0">
+      <div className="container-editorial pb-6 pt-8 md:pt-10 print:hidden">
+        <div className="mx-auto flex max-w-[210mm] flex-wrap items-center justify-between gap-x-8 gap-y-3">
+          <p className="label-caps text-bond-olive">Vista previa · factura electrónica de demo</p>
+          <div className="flex flex-wrap items-center gap-x-6">
             <button
               type="button"
               data-testid="descargar-pdf"
               disabled={!data?.ok}
               onClick={() => window.print()}
-              className={`${buttonBase} ${buttonTones.butter} w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto`}
+              className={`${buttonBase} ${buttonTones.olive} !min-h-12 disabled:cursor-not-allowed disabled:opacity-60`}
             >
               Descargar PDF
             </button>
@@ -79,16 +77,15 @@ export function InvoiceView({ invoiceId }: { invoiceId: string }) {
                 if (window.history.length > 1) window.history.back();
                 else router.push("/");
               }}
-              className={`${buttonBase} ${buttonTones.outlineDark} w-full sm:w-auto`}
+              className={`${quietLink} text-bond-night`}
             >
               Volver
             </button>
           </div>
-          <p className="mt-3 text-sm text-bond-sand">Se abre el diálogo de impresión: elige «Guardar como PDF» (tamaño A4).</p>
         </div>
       </div>
 
-      <div className="container-editorial py-8 md:py-12 print:p-0">
+      <div className="container-editorial pb-12 pt-2 md:pb-20 print:p-0">
         {!data && <p aria-live="polite" className="py-10 text-lead text-bond-olive">Armando la factura…</p>}
         {data && !data.ok && (
           <div className="mx-auto max-w-xl py-10">
@@ -96,7 +93,7 @@ export function InvoiceView({ invoiceId }: { invoiceId: string }) {
               Factura no <span className="accent-italic text-bond-ember">disponible</span>
             </h1>
             <p className="mt-4 text-lead text-bond-olive">{data.message}</p>
-            <Link href="/" className={`${buttonBase} ${buttonTones.night} mt-8`}>
+            <Link href="/" className={`${buttonBase} ${buttonTones.olive} mt-8`}>
               Volver al inicio
             </Link>
           </div>
@@ -142,7 +139,7 @@ function Ride({ data }: { data: Extract<InvoicePreview, { ok: true }> }) {
             <dl>
               {emisor.map(([label, value]) => (
                 <Row key={label} label={label}>
-                  <Pending text={value} />
+                  <Pending text={value} dash />
                 </Row>
               ))}
             </dl>
@@ -151,7 +148,7 @@ function Ride({ data }: { data: Extract<InvoicePreview, { ok: true }> }) {
         <Box>
           <dl>
             <Row label="R.U.C.">
-              <Pending text="[[PENDIENTE: RUC de la clienta]]" />
+              <Pending text="[[PENDIENTE: RUC de la clienta]]" dash />
             </Row>
           </dl>
           <p className="display-serif mt-2 text-3xl leading-none sm:text-4xl">Factura</p>
@@ -199,7 +196,7 @@ function Ride({ data }: { data: Extract<InvoicePreview, { ok: true }> }) {
                 <td className="px-3 py-3 tabular-nums">{l.quantity}</td>
                 <td className="px-3 py-3">
                   <span className="block font-medium">
-                    <Pending text={l.description} />
+                    <Pending text={l.description} dash />
                   </span>
                   <span className="block text-bond-olive">{l.detail}</span>
                 </td>
@@ -218,9 +215,11 @@ function Ride({ data }: { data: Extract<InvoicePreview, { ok: true }> }) {
             {edition && <Row label="Edición">{`${edition.number} · ${edition.title}`}</Row>}
             {coupon && <Row label="Cupón">{coupon}</Row>}
             <Row label="Forma de pago">Tarjeta de prueba (caja de pagos simulada)</Row>
-            <Row label="Pendiente">
-              <Pending text="[[PENDIENTE: códigos de producto y demás campos del RIDE según la ficha técnica del SRI]]" />
-            </Row>
+            <WhenShowingPending>
+              <Row label="Pendiente">
+                <Pending text="[[PENDIENTE: códigos de producto y demás campos del RIDE según la ficha técnica del SRI]]" />
+              </Row>
+            </WhenShowingPending>
           </dl>
         </Box>
         <Box>
@@ -230,9 +229,9 @@ function Ride({ data }: { data: Extract<InvoicePreview, { ok: true }> }) {
             <dt className="text-bond-olive">Descuento{coupon ? ` (${coupon})` : ""}</dt>
             <dd className="text-right tabular-nums">{order.discountCents > 0 ? money(order.discountCents) : "—"}</dd>
             <dt className="text-bond-olive">
-              IVA (<Pending text="[[PENDIENTE: tarifa de IVA aplicable]]" />)
+              IVA (<Pending text="[[PENDIENTE: tarifa de IVA aplicable]]" dash />)
             </dt>
-            <dd className="text-right tabular-nums">{example ? "$XX" : <Pending text="[[PENDIENTE: monto de IVA]]" />}</dd>
+            <dd className="text-right tabular-nums">{example ? "$XX" : <Pending text="[[PENDIENTE: monto de IVA]]" dash />}</dd>
             <dt className="label-caps self-end border-t border-bond-night pt-3 text-bond-night">Valor total</dt>
             <dd data-testid="ride-total" className="border-t border-bond-night pt-3 text-right font-display text-3xl leading-none tabular-nums">
               {money(invoice.totalCents)}

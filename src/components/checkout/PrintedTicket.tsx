@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Monogram } from "@/components/brand/Monogram";
+import { EditionMeta } from "@/components/edition/EditionMeta";
 import { Pending } from "@/components/Pending";
 import { createTicketToken } from "@/domain/ticket-token";
 import type { Edition, Ticket, TicketType } from "@/domain/types";
@@ -67,16 +68,12 @@ export function PrintedTicket({
       >
         <div className="flex items-start justify-between gap-4 p-6 pb-5 md:p-8 md:pb-6">
           <div className="min-w-0">
-            <p className="label-caps text-bond-olive">The Bond · Edición {edition.number}</p>
-            <h3 className="display-serif mt-3 text-heading">{edition.title}</h3>
-            <p className="mt-3 text-sm">
-              <Pending text={edition.dateLabel} />
-            </p>
-            <p className="text-sm text-bond-olive">
-              <Pending text={edition.venueName} />
-            </p>
+            <h3 className="display-serif text-heading">
+              <span className="accent-italic">{edition.number} —</span> {edition.title}
+            </h3>
+            <EditionMeta edition={edition} teaser={false} className="mt-3 text-bond-olive" />
           </div>
-          <Monogram size={64} title="" className="shrink-0 text-bond-night" />
+          <Monogram size={56} title="" className="shrink-0 text-bond-night" />
         </div>
 
         {/* Perforación */}
@@ -87,19 +84,16 @@ export function PrintedTicket({
 
         <div className="flex items-end justify-between gap-5 p-6 pt-6 md:p-8 md:pt-7">
           <div className="min-w-0">
-            <p className="label-caps text-bond-olive">
-              Entrada {index + 1} de {total}
-            </p>
-            <p className="display-serif mt-2 text-[1.75rem] leading-tight md:text-3xl" data-testid="ticket-name">
+            <p className="display-serif text-[1.5rem] leading-tight md:text-3xl" data-testid="ticket-name">
               {ticket.attendee.name}
             </p>
-            <p className="mt-2 text-sm">{ticketType ? <Pending text={ticketType.name} /> : "Entrada"}</p>
+            <p className="label-caps mt-2 text-bond-olive">{ticketType ? <Pending text={ticketType.name} dash /> : "Entrada"}</p>
             <div className="mt-3 min-h-11">
               {token && (
                 <Link
                   href={entryHref(token)}
                   data-testid="mi-entrada"
-                  className="label-caps inline-flex min-h-11 items-center text-bond-night underline underline-offset-4 hover:text-bond-moss"
+                  className="label-caps inline-flex min-h-11 items-center text-bond-night underline underline-offset-[0.55em] decoration-[0.5px] hover:text-bond-moss"
                 >
                   Mi entrada <span aria-hidden className="ml-2">→</span>
                 </Link>

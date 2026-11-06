@@ -19,7 +19,7 @@ export function ExpiredModal({ open, onBack }: { open: boolean; onBack: () => vo
         </>
       }
       actions={
-        <button type="button" data-autofocus data-testid="expired-back" onClick={onBack} className={`${buttonBase} ${buttonTones.night} w-full`}>
+        <button type="button" data-autofocus data-testid="expired-back" onClick={onBack} className={`${buttonBase} ${buttonTones.olive} w-full`}>
           Volver a elegir
         </button>
       }

@@ -16,7 +16,7 @@ import { StatePanel } from "./StatePanel";
 
 export const metadata: Metadata = {
   title: "Sistema visual · THE BOND demo",
-  description: "Tokens de color, tipografía, placeholders, estado y adapters del demo (Fase 1).",
+  description: "Sistema visual Quiet Bond: tokens de color, tipografía, movimiento, placeholders, modo presentación, estado y adapters del demo.",
 };
 
 const LOGO_TILES = [
@@ -26,12 +26,13 @@ const LOGO_TILES = [
 ] as const;
 
 const TOC = [
+  ["principios", "Quiet Bond"],
   ["color", "Color"],
   ["tipografia", "Tipografía"],
   ["espacio", "Espacio y movimiento"],
   ["textura", "Textura"],
   ["placeholders", "Placeholders"],
-  ["pendiente", "Pendientes"],
+  ["pendiente", "Modo presentación"],
   ["semilla", "Datos semilla"],
   ["estado", "Estado y adapters"],
 ] as const;
@@ -87,12 +88,11 @@ export default function TokensPage() {
   return (
     <main>
       {/* ───── Hero ───── */}
-      <section className="surface-dark grain relative overflow-hidden bg-bond-night text-bond-cream">
-        <div className="sunset-sun" aria-hidden />
-        <div className="relative z-10 flex min-h-[92svh] flex-col justify-between">
+      <section className="surface-mid relative overflow-hidden bg-bond-olive text-bond-cream">
+        <div className="relative z-10 flex min-h-[80svh] flex-col justify-between">
           <div className="container-editorial flex items-center justify-between pt-6 md:pt-8">
-            <Monogram size={72} className="text-bond-butter" />
-            <Label className="text-bond-sand">Fase 1 · Sistema visual</Label>
+            <Monogram size={64} className="text-bond-cream" />
+            <Label className="mr-16 text-bond-cream md:mr-24">Sistema visual · Quiet Bond</Label>
           </div>
           <div className="container-editorial pb-12 pt-20 md:pb-20">
             <RevealLines
@@ -100,9 +100,9 @@ export default function TokensPage() {
               className="display-serif text-display-xl"
               lines={["Move.", "Connect.", <span key="b" className="accent-italic text-bond-butter">Belong.</span>]}
             />
-            <FadeIn delay={0.5} className="mt-10 grid gap-8 rounded-md bg-bond-night/80 p-5 backdrop-blur-sm md:mt-14 md:grid-cols-[1.2fr_1fr] md:items-end md:p-8">
+            <FadeIn delay={0.5} className="mt-10 grid gap-8 border-t border-bond-cream/30 pt-8 md:mt-14 md:grid-cols-[1.2fr_1fr] md:items-end">
               <p className="max-w-xl text-lead text-bond-cream">
-                Tokens, tipografía, placeholders, estado y adapters del demo. Todo lo que verás en las próximas fases nace en esta página.
+                Referencia del rediseño: tokens, tipografía, movimiento, placeholders, modo presentación, estado y adapters del demo.
               </p>
               <nav aria-label="Secciones de esta página">
                 <ul className="flex flex-wrap gap-x-5 gap-y-2">
@@ -120,13 +120,45 @@ export default function TokensPage() {
         </div>
       </section>
 
+      {/* ───── Quiet Bond ───── */}
+      <section className="py-24 md:py-36">
+        <div className="container-editorial">
+          <header className="mb-12 md:mb-16" id="principios">
+            <Label className="text-bond-olive">Quiet Bond · principios</Label>
+            <RevealLines lines={["Menos,", <span key="a" className="accent-italic">pero mejor.</span>]} className="display-serif mt-5 text-display-m text-bond-night" />
+          </header>
+          <ol className="grid gap-x-12 gap-y-6 md:grid-cols-2" data-testid="principios">
+            {[
+              ["Una idea por pantalla", "Cada bloque: un titular corto, una línea de apoyo y una acción. Ningún párrafo de más de dos líneas en móvil."],
+              ["Oliva y crema dominan", "El atardecer solo aparece en el hero de la edición. Night, solo en el pie y en el ticket de la confirmación. Butter es un acento escaso."],
+              ["Dos voces", "Bodoni Moda para titulares (fina, mayúsculas, itálica de acento) e Inter para texto y etiquetas. La sans condensada, en una sola línea de manifiesto."],
+              ["Sin ruido", "Sin eyebrows numerados ni etiqueta por sección, sin texto dentro de imágenes, una sola nota de \"precios de ejemplo\", sin CTAs ni contadores repetidos."],
+              ["Movimiento que respira", "Fundidos y revelados suaves de 600 a 900 ms; el atardecer es lento y sutil. Con reduced motion queda solo la opacidad."],
+              ["Divulgación progresiva", "Lo que incluye, las etapas, el cupón, las preguntas y los datos de cada asistente se abren a demanda."],
+              ["Aire y objetivos táctiles", "Mucho espacio, cuadrícula firme, imágenes grandes. Objetivos de 44 px mínimo y contraste AA en todo."],
+            ].map(([t, d], i) => (
+              <li key={t} className="border-t border-bond-night/25 pt-5">
+                <h3 className="font-display text-xl">
+                  <span aria-hidden className="mr-3 italic text-bond-olive">{i + 1}.</span>
+                  {t}
+                </h3>
+                <p className="mt-2 text-bond-night/85">{d}</p>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-10 max-w-2xl text-sm text-bond-night/85">
+            La píldora <strong className="font-semibold">Demo</strong> vive en el encabezado de todas las pantallas (sin tapar contenido) y abre una hoja con &quot;Demo · datos simulados&quot;, el interruptor &quot;Mostrar pendientes&quot; y &quot;Reiniciar demo&quot;. El panel completo (tour e interruptores) llegará en la Fase 6 sobre ese botón.
+          </p>
+        </div>
+      </section>
+
       {/* ───── 01 Color ───── */}
       <section className="py-24 md:py-36">
         <div className="container-editorial">
           <SectionHead id="color" n="01" label="Color" title={["Tierra, hoja", <span key="a" className="accent-italic">y sol.</span>]} />
           <p className="mb-12 max-w-2xl text-lead text-bond-night/85">
             Valores aproximados tomados por observación del feed. Viven solo en <code className="font-mono text-[0.9em]">src/styles/tokens.css</code>:
-            cambiar la marca es editar un archivo. <Pending text={pending("confirmar paleta oficial con los archivos de marca")} />
+            cambiar la marca es editar un archivo. <Pending forceShow text={pending("confirmar paleta oficial con los archivos de marca")} />
           </p>
 
           <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4" data-testid="swatches">
@@ -191,7 +223,7 @@ export default function TokensPage() {
               <Label className="text-bond-butter">Tipografía</Label>
             </div>
             <RevealLines
-              lines={["Serif fina,", <span key="a" className="accent-italic text-bond-butter">sans firme.</span>]}
+              lines={["Serif fina,", <span key="a" className="accent-italic text-bond-butter">sans tranquila.</span>]}
               className="display-serif mt-5 text-display-m"
             />
           </header>
@@ -203,15 +235,15 @@ export default function TokensPage() {
                 Come solo.<br />
                 Leave <span className="accent-italic text-bond-butter">connected.</span>
               </p>
-              <p className="mt-6 max-w-xl text-bond-cream/90">Mayúsculas con itálica para la palabra acento. Aproximación de la serif de alto contraste del feed.</p>
+              <p className="mt-6 max-w-xl text-bond-cream/90">Voz principal de los titulares: peso fino, mayúsculas, itálica para la palabra acento. Aproximación de la serif de alto contraste del feed.</p>
             </div>
             <div className="bg-bond-olive py-10">
-              <Label className="text-bond-butter">Display sans · Archivo, eje wdth condensado, peso 800</Label>
+              <Label className="text-bond-butter">Display sans · Archivo condensada, peso 800 · solo UNA línea de manifiesto</Label>
               <p className="display-sans mt-6 text-display-l leading-[0.92]">A community<br />to move</p>
             </div>
             <div className="grid gap-10 bg-bond-olive py-10 md:grid-cols-2">
               <div>
-                <Label className="text-bond-butter">Etiquetas · 11 px · tracking 0.3em</Label>
+                <Label className="text-bond-butter">Etiquetas · Inter 500 · 11 px · tracking 0.3em</Label>
                 <p className="label-caps mt-6 !text-[0.75rem] text-bond-cream">T H E  B O N D · The Last Call</p>
                 <p className="label-caps mt-3 text-bond-cream">A wellness community</p>
               </div>
@@ -227,6 +259,7 @@ export default function TokensPage() {
           <h3 className="mt-16 font-display text-heading">Escala fluida (clamp)</h3>
           <ul className="mt-6 divide-y divide-bond-cream/25 border-y border-bond-cream/25" data-testid="type-scale">
             {[
+              ["display-hero", "text-display-hero display-serif", "Belong"],
               ["display-xl", "text-display-xl display-serif", "Belong"],
               ["display-l", "text-display-l display-serif", "Connect"],
               ["display-m", "text-display-m display-serif", "Move"],
@@ -242,7 +275,7 @@ export default function TokensPage() {
             ))}
           </ul>
           <p className="mt-8 max-w-2xl text-sm text-bond-cream/90">
-            <Pending text={pending("confirmar fuentes oficiales y entregar el logo en SVG vectorial")} /> Hasta entonces, Bodoni Moda, Archivo e Inter se cargan con next/font (autoalojadas, display swap).
+            <Pending forceShow text={pending("confirmar fuentes oficiales y entregar el logo en SVG vectorial")} /> Hasta entonces, Bodoni Moda, Archivo e Inter se cargan con next/font (autoalojadas, display swap).
           </p>
         </div>
       </section>
@@ -293,14 +326,14 @@ export default function TokensPage() {
             <div>
               <h3 className="font-display text-heading">Motion</h3>
               <p className="mt-3 text-sm text-bond-night/85">
-                Todo se anula con <code className="font-mono text-[0.9em]">prefers-reduced-motion</code>: sin loops ni entradas, solo fades simples.
+                Fundidos y revelados de 600 a 900 ms. Todo se anula con <code className="font-mono text-[0.9em]">prefers-reduced-motion</code>: sin loops ni entradas, solo opacidad.
               </p>
               <ul className="mt-6 flex flex-col gap-4">
                 {[
                   ["fast", "180 ms", "--dur-fast", "6%"],
                   ["base", "400 ms", "--dur-base", "14%"],
                   ["slow", "900 ms", "--dur-slow", "32%"],
-                  ["sunset", "40 s (loop)", "--dur-sunset", "100%"],
+                  ["sunset", "90 s (loop, solo en el hero)", "--dur-sunset", "100%"],
                 ].map(([name, ms, v, w]) => (
                   <li key={name} className="flex flex-col gap-1">
                     <div className="flex justify-between text-xs">
@@ -328,11 +361,11 @@ export default function TokensPage() {
               <p className="relative z-10 font-mono text-xs">.grain · feTurbulence inline</p>
             </FadeIn>
             <FadeIn delay={0.1} className="grain sunset relative flex aspect-[4/5] items-end overflow-hidden rounded-md p-6 text-bond-cream">
-              <p className="relative z-10 font-mono text-xs">.sunset · gradiente estático</p>
+              <p className="relative z-10 font-mono text-xs">.sunset · gradiente estático (solo hero de la edición)</p>
             </FadeIn>
             <FadeIn delay={0.2} className="surface-dark grain relative flex aspect-[4/5] items-end overflow-hidden rounded-md bg-bond-night p-6 text-bond-cream">
               <div className="sunset-sun" aria-hidden />
-              <p className="relative z-10 font-mono text-xs">.sunset-sun · loop lento (40 s)</p>
+              <p className="relative z-10 font-mono text-xs">.sunset-sun · loop lento y sutil (90 s)</p>
             </FadeIn>
           </div>
           <h3 id="logos" className="label-caps mt-16 text-bond-night">Monograma BO</h3>
@@ -354,7 +387,7 @@ export default function TokensPage() {
             ))}
           </div>
           <p className="mt-6 max-w-2xl text-sm text-bond-night/85">
-            Logo y monograma vectorizados por IGNIS desde los JPG de la clienta (<code className="font-mono text-[0.9em]">assets/brand/</code>, <code className="font-mono text-[0.9em]">npm run logos</code>). <Pending text={pending("SVG vectorial oficial del logo y del monograma")} />
+            Logo y monograma vectorizados por IGNIS desde los JPG de la clienta (<code className="font-mono text-[0.9em]">assets/brand/</code>, <code className="font-mono text-[0.9em]">npm run logos</code>). <Pending forceShow text={pending("SVG vectorial oficial del logo y del monograma")} />
           </p>
         </div>
       </section>
@@ -364,7 +397,7 @@ export default function TokensPage() {
         <div className="container-editorial">
           <SectionHead id="placeholders" n="05" label="Placeholders de imagen" title={["Bloques de luz,", <span key="a" className="accent-italic">no stock.</span>]} />
           <p className="mb-12 max-w-2xl text-lead text-bond-night/85">
-            Generados con <code className="font-mono text-[0.9em]">npm run placeholders</code> en los colores de la marca, AVIF y WebP a 640, 1280 y 1920 px. Cada uno lleva su nombre y lo que falta.
+            Generados con <code className="font-mono text-[0.9em]">npm run placeholders</code> en los colores de la marca, AVIF y WebP a 640, 1280 y 1920 px. Cada asset sale en dos variantes: <strong className="font-semibold">limpia</strong> (gradiente y grano, sin texto; la que se ve por defecto) y <strong className="font-semibold">rotulada</strong> (con su nombre y lo que falta; solo con &quot;Mostrar pendientes&quot; encendido).
           </p>
           <ul className="grid grid-cols-2 items-start gap-3 md:grid-cols-4 md:gap-4" data-testid="placeholders">
             {placeholderAssets.map((a, i) => {
@@ -372,15 +405,15 @@ export default function TokensPage() {
               return (
                 <li key={a.name} className="flex flex-col gap-2">
                   <Image
-                    src={placeholderSrc(a.name, 640)}
-                    alt={`Placeholder ${a.name}`}
+                    src={placeholderSrc(a.name, 640, "webp", i % 2 === 0 ? "clean" : "labeled")}
+                    alt={`Placeholder ${a.name} (${i % 2 === 0 ? "limpio" : "rotulado"})`}
                     width={base.width}
                     height={base.height}
                     sizes="(min-width: 768px) 25vw, 50vw"
                     priority={i < 4}
                     className="h-auto w-full rounded-sm"
                   />
-                  <code className="font-mono text-[0.7rem]">{a.name}</code>
+                  <code className="font-mono text-[0.7rem]">{a.name} · {i % 2 === 0 ? "limpio" : "rotulado"}</code>
                 </li>
               );
             })}
@@ -394,19 +427,19 @@ export default function TokensPage() {
           <header className="mb-12" id="pendiente">
             <div className="flex items-baseline gap-4">
               <span className="font-display text-3xl italic text-bond-butter md:text-4xl" aria-hidden>06</span>
-              <Label className="text-bond-butter">Cero invención</Label>
+              <Label className="text-bond-butter">Cero invención · modo presentación</Label>
             </div>
-            <RevealLines lines={["Lo que no sabemos,", <span key="a" className="accent-italic text-bond-butter">a la vista.</span>]} className="display-serif mt-5 text-display-m" />
+            <RevealLines lines={["Lo que no sabemos,", <span key="a" className="accent-italic text-bond-butter">a la vista o en calma.</span>]} className="display-serif mt-5 text-display-m" />
           </header>
           <p className="max-w-2xl text-lead">
-            Todo dato que no esté en el brief se marca así y se registra en <code className="font-mono text-[0.9em]">PENDIENTES.md</code>:
+            Todo dato que no esté en el brief se registra en <code className="font-mono text-[0.9em]">PENDIENTES.md</code> y se maneja con el interruptor &quot;Mostrar pendientes&quot; de la píldora Demo. Apagado (por defecto) no se ve ningún marcador: un guion discreto o un teaser (&quot;Speaker reveal · soon&quot;). Encendido, se resaltan así:
           </p>
           <div className="mt-8 flex flex-col gap-4 text-bond-night">
             <p className="w-fit rounded-md bg-bond-cream p-5">
-              Fecha: <Pending text={pending("fecha de la ed. 002")} /> · Precio: <span className="font-medium">{formatMoney(1000, { isExample: true })}</span> <span className="text-sm">(ejemplo)</span>
+              Fecha: <Pending forceShow text={pending("fecha de la ed. 002")} /> · Precio: <span className="font-medium">{formatMoney(1000, { isExample: true })}</span> <span className="text-sm">(ejemplo)</span>
             </p>
             <p className="w-fit rounded-md bg-bond-cream p-5">
-              Sede: <Pending text={pending("sede de la ed. 002")} />
+              Sede: <Pending forceShow text={pending("sede de la ed. 002")} />
             </p>
           </div>
         </div>
@@ -427,11 +460,11 @@ export default function TokensPage() {
                 <p className="accent-italic mt-2 text-lead">{e.tagline}</p>
                 <dl className="mt-8 grid grid-cols-[7rem_minmax(0,1fr)] gap-x-4 gap-y-3 text-sm [&_dd]:[overflow-wrap:anywhere]">
                   <dt className="label-caps !text-[0.625rem] pt-1 text-bond-olive">Fecha</dt>
-                  <dd><Pending text={e.dateLabel} /></dd>
+                  <dd><Pending forceShow text={e.dateLabel} /></dd>
                   <dt className="label-caps !text-[0.625rem] pt-1 text-bond-olive">Sede</dt>
-                  <dd><Pending text={`${e.venueName} · ${e.venueAddress}`} /></dd>
+                  <dd><Pending forceShow text={`${e.venueName} · ${e.venueAddress}`} /></dd>
                   <dt className="label-caps !text-[0.625rem] pt-1 text-bond-olive">Aforo</dt>
-                  <dd>{e.capacity === null ? <Pending text={pending("aforo de la ed. 001")} /> : `${e.capacity} (ejemplo)`}</dd>
+                  <dd>{e.capacity === null ? <Pending forceShow text={pending("aforo de la ed. 001")} /> : `${e.capacity} (ejemplo)`}</dd>
                   <dt className="label-caps !text-[0.625rem] pt-1 text-bond-olive">Cronograma</dt>
                   <dd>
                     <ul className="flex flex-col gap-1">
@@ -440,8 +473,8 @@ export default function TokensPage() {
                           key={i}
                           className={isPending(s.time) ? "flex flex-wrap gap-x-3 gap-y-1" : "grid grid-cols-[3rem_minmax(0,1fr)] gap-x-3"}
                         >
-                          <span className="font-medium tabular-nums"><Pending text={s.time} /></span>
-                          <span><Pending text={s.title} /></span>
+                          <span className="font-medium tabular-nums"><Pending forceShow text={s.time} /></span>
+                          <span><Pending forceShow text={s.title} /></span>
                         </li>
                       ))}
                     </ul>
@@ -451,7 +484,7 @@ export default function TokensPage() {
                     <ul className="flex flex-col gap-1">
                       {ticketTypes.filter((t) => t.editionId === e.id).map((t) => (
                         <li key={t.id}>
-                          <Pending text={t.name} /> · {t.stages.map((s) => `${s.label} ${formatMoney(s.amountCents, { isExample: s.isExample })}`).join(" · ")}
+                          <Pending forceShow text={t.name} /> · {t.stages.map((s) => `${s.label} ${formatMoney(s.amountCents, { isExample: s.isExample })}`).join(" · ")}
                         </li>
                       ))}
                     </ul>

@@ -10,16 +10,19 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-/** Home de la comunidad (brief 6.1, punto 1): manifiesto, próxima edición y archivo. */
+/**
+ * Home (Quiet Bond): una pantalla oliva con el logo, la próxima edición, una
+ * línea de manifiesto y el archivo. El pie lo pone el layout raíz.
+ */
 export default function HomePage() {
   const data = seed();
   const next = nextEdition(data.editions);
   const vm = next ? buildEditionViewModel(data, next.slug) : undefined;
   return (
     <main id="contenido">
-      <HomeHero nextSlug={next?.slug} />
-      <Manifesto />
+      <HomeHero />
       {vm && <FeaturedEdition vm={vm} />}
+      <Manifesto />
       <Archive editions={pastEditions(data.editions)} />
     </main>
   );

@@ -17,10 +17,10 @@ beforeEach(() => {
   useDemoStore.setState({ ...DEFAULT_FLAGS });
 });
 
-async function html(emailId: string): Promise<string> {
+async function html(emailId: string, showPending = true): Promise<string> {
   const r = await loadEmailPreview(emailId, SITE);
   if (!r.ok) throw new Error(r.message);
-  return renderEmailHtml(r.model);
+  return renderEmailHtml(r.model, { showPending });
 }
 
 const qrImages = (h: string) => h.match(/<img[^>]+data-qr="[^"]+"[^>]*>/g) ?? [];
@@ -42,6 +42,15 @@ describe("vista previa del correo de entrada", () => {
     expect(out).toContain(`${SITE}/entrada/?t=`);
     expect(out).toContain(order?.buyer.name ?? "");
     expect(out).toContain("data:image/png;base64,");
+  });
+
+  it("con el modo presentación apagado el correo no trae ningún marcador [[PENDIENTE]]", async () => {
+    const log = (await storage.emails.list()).find((e) => e.template === "ticket");
+    if (!log) throw new Error("sin correo semilla");
+    const quiet = await html(log.id, false);
+    expect(quiet).not.toContain("PENDIENTE");
+    const loud = await html(log.id, true);
+    expect(loud).toContain("PENDIENTE");
   });
 
   it("los colores del correo salen del tema (tokens), sin variables CSS", async () => {

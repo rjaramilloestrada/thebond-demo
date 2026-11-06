@@ -16,7 +16,7 @@ export function BuyerForm({
 }) {
   const set = (patch: Partial<BuyerDraft>) => onChange({ ...value, ...patch });
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-6">
       <TextField
         id="buyer-name"
         fieldKey={fieldKey.buyer("name")}
@@ -26,7 +26,6 @@ export function BuyerForm({
         onChange={(e) => set({ name: e.target.value })}
         onBlur={() => onBlurField(fieldKey.buyer("name"))}
         error={errorFor(fieldKey.buyer("name"))}
-        className="md:col-span-2"
       />
       <TextField
         id="buyer-email"
@@ -39,7 +38,6 @@ export function BuyerForm({
         onChange={(e) => set({ email: e.target.value })}
         onBlur={() => onBlurField(fieldKey.buyer("email"))}
         error={errorFor(fieldKey.buyer("email"))}
-        hint="Aquí registramos tu orden."
       />
       <TextField
         id="buyer-phone"
