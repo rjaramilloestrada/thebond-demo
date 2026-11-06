@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Label } from "@/components/brand/Label";
+import { Logo } from "@/components/brand/Logo";
 import { Monogram } from "@/components/brand/Monogram";
 import { Pending } from "@/components/Pending";
 import { FadeIn, RevealLines } from "@/components/Reveal";
@@ -17,6 +18,12 @@ export const metadata: Metadata = {
   title: "Sistema visual · THE BOND demo",
   description: "Tokens de color, tipografía, placeholders, estado y adapters del demo (Fase 1).",
 };
+
+const LOGO_TILES = [
+  ["bg-bond-olive text-bond-cream", "cream sobre olive"],
+  ["bg-bond-cream text-bond-night", "night sobre cream"],
+  ["bg-bond-night text-bond-cream", "cream sobre night"],
+] as const;
 
 const TOC = [
   ["color", "Color"],
@@ -84,7 +91,7 @@ export default function TokensPage() {
         <div className="sunset-sun" aria-hidden />
         <div className="relative z-10 flex min-h-[92svh] flex-col justify-between">
           <div className="container-editorial flex items-center justify-between pt-6 md:pt-8">
-            <Monogram size={56} className="text-bond-butter" />
+            <Monogram size={72} className="text-bond-butter" />
             <Label className="text-bond-sand">Fase 1 · Sistema visual</Label>
           </div>
           <div className="container-editorial pb-12 pt-20 md:pb-20">
@@ -235,7 +242,7 @@ export default function TokensPage() {
             ))}
           </ul>
           <p className="mt-8 max-w-2xl text-sm text-bond-cream/90">
-            <Pending text={pending("confirmar fuentes oficiales y logo en SVG")} /> Hasta entonces, Bodoni Moda, Archivo e Inter se cargan con next/font (autoalojadas, display swap).
+            <Pending text={pending("confirmar fuentes oficiales y entregar el logo en SVG vectorial")} /> Hasta entonces, Bodoni Moda, Archivo e Inter se cargan con next/font (autoalojadas, display swap).
           </p>
         </div>
       </section>
@@ -315,7 +322,7 @@ export default function TokensPage() {
       {/* ───── 04 Textura ───── */}
       <section className="bg-bond-sand py-24 md:py-36">
         <div className="container-editorial">
-          <SectionHead id="textura" n="04" label="Grano · sunset · monograma" title={["Luz baja", <span key="a" className="accent-italic">y grano de película.</span>]} />
+          <SectionHead id="textura" n="04" label="Grano · sunset · logos" title={["Luz baja", <span key="a" className="accent-italic">y grano de película.</span>]} />
           <div className="grid gap-4 md:grid-cols-3">
             <FadeIn className="grain relative flex aspect-[4/5] items-end overflow-hidden rounded-md bg-bond-olive p-6 text-bond-cream">
               <p className="relative z-10 font-mono text-xs">.grain · feTurbulence inline</p>
@@ -328,20 +335,26 @@ export default function TokensPage() {
               <p className="relative z-10 font-mono text-xs">.sunset-sun · loop lento (40 s)</p>
             </FadeIn>
           </div>
-          <div className="mt-4 grid gap-4 md:grid-cols-3">
-            {[
-              ["bg-bond-cream text-bond-night", "cream"],
-              ["bg-bond-olive text-bond-butter", "olive"],
-              ["bg-bond-night text-bond-cream", "night"],
-            ].map(([cls, name]) => (
-              <div key={name} className={`flex flex-col items-center gap-4 rounded-md p-10 ${cls}`}>
-                <Monogram size={120} />
-                <Label>The Bond · {name}</Label>
+          <h3 id="logos" className="label-caps mt-16 text-bond-night">Monograma BO</h3>
+          <div className="mt-4 grid gap-4 md:grid-cols-3" data-testid="monogram-tiles">
+            {LOGO_TILES.map(([cls, name]) => (
+              <div key={name} className={`flex flex-col items-center gap-6 rounded-md p-10 ${cls}`}>
+                <Monogram size={160} />
+                <Label>Monograma · {name}</Label>
+              </div>
+            ))}
+          </div>
+          <h3 className="label-caps mt-12 text-bond-night">Logo completo</h3>
+          <div className="mt-4 grid gap-4 md:grid-cols-3" data-testid="logo-tiles">
+            {LOGO_TILES.map(([cls, name]) => (
+              <div key={name} className={`flex flex-col items-center gap-6 rounded-md p-10 ${cls}`}>
+                <Logo className="w-full max-w-72" />
+                <Label>Logo · {name}</Label>
               </div>
             ))}
           </div>
           <p className="mt-6 max-w-2xl text-sm text-bond-night/85">
-            Monograma tipográfico provisional. <Pending text={pending("monograma BO oficial en SVG")} />
+            Logo y monograma vectorizados por IGNIS desde los JPG de la clienta (<code className="font-mono text-[0.9em]">assets/brand/</code>, <code className="font-mono text-[0.9em]">npm run logos</code>). <Pending text={pending("SVG vectorial oficial del logo y del monograma")} />
           </p>
         </div>
       </section>

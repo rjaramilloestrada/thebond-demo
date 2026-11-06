@@ -3,7 +3,7 @@ import { Monogram } from "@/components/brand/Monogram";
 import { HeroLines } from "@/components/HeroLines";
 import { buttonBase, buttonTones } from "@/components/ui/button-styles";
 
-/** Hero sunset del home (wow 1): el manifiesto "Move. Connect. Belong." con el monograma provisional. */
+/** Hero sunset del home (wow 1): el manifiesto "Move. Connect. Belong." con el monograma BO. */
 export function HomeHero({ nextSlug }: { nextSlug?: string }) {
   return (
     <section
@@ -17,8 +17,8 @@ export function HomeHero({ nextSlug }: { nextSlug?: string }) {
         aria-hidden
         className="pointer-events-none absolute left-[57%] top-[15%] z-[2] -translate-x-1/2 -translate-y-1/2 text-bond-night md:left-[72%] md:top-[36%]"
       >
-        <Monogram size={132} title="" className="md:hidden" />
-        <Monogram size={260} title="" className="hidden md:block" />
+        <Monogram size={170} title="" className="md:hidden" />
+        <Monogram size={320} title="" className="hidden md:block" />
       </div>
       <div className="container-editorial relative z-10 pb-12 pt-36 md:pb-20">
         <p className="label-caps hero-fade text-bond-sand">A wellness community</p>

@@ -1,31 +1,30 @@
+import { monogramPath } from "./svg/paths";
+
 /**
- * Monograma "BO" (B y O entrelazadas). PLACEHOLDER tipográfico hasta tener el
- * SVG oficial. [[PENDIENTE: monograma BO oficial en SVG]]
+ * Monograma "BO" oficial (B y O entrelazadas), vectorizado por IGNIS desde el
+ * JPG de la clienta (`assets/brand/monograma-bo-original.jpg`, `npm run logos`).
+ * SVG inline (sin petición de imagen, apto para el LCP); el color sale de
+ * `currentColor`, sin fondo.
+ *
+ * `size` es el ANCHO en px (la proporción del monograma es ~1,62:1, la altura
+ * se deriva sola). Con `title=""` el SVG se oculta a los lectores de pantalla.
+ * [[PENDIENTE: SVG vectorial oficial del monograma de la clienta]]
  */
 export function Monogram({ size = 96, className = "", title = "THE BOND" }: { size?: number; className?: string; title?: string }) {
+  const { width, height, d } = monogramPath;
+  const decorative = title === "";
   return (
     <svg
-      role="img"
-      aria-label={title}
-      viewBox="0 0 120 120"
+      {...(decorative ? { "aria-hidden": true } : { role: "img", "aria-label": title })}
+      focusable="false"
+      viewBox={`0 0 ${width} ${height}`}
       width={size}
-      height={size}
+      height={Math.round((size * height) / width)}
       className={className}
-      fill="none"
+      fill="currentColor"
     >
-      <title>{title}</title>
-      <text
-        x="14"
-        y="92"
-        fontFamily="var(--font-bodoni), serif"
-        fontSize="96"
-        fill="currentColor"
-        style={{ fontOpticalSizing: "auto" }}
-      >
-        B
-      </text>
-      <circle cx="74" cy="64" r="30" stroke="currentColor" strokeWidth="2.4" />
-      <circle cx="74" cy="64" r="24" stroke="currentColor" strokeWidth="0.8" opacity="0.6" />
+      {!decorative && <title>{title}</title>}
+      <path fillRule="evenodd" d={d} />
     </svg>
   );
 }

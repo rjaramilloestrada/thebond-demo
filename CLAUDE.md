@@ -27,11 +27,12 @@ Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS 4 (
 
 - `npm run dev` / `npm run build` / `npm run start`
 - `npm run lint` · `npx tsc --noEmit` · `npm test`
-- `npm run placeholders` regenera `/public/placeholders/` (sharp, AVIF + WebP). `npm run icon` regenera el ícono provisional.
+- `npm run placeholders` regenera `/public/placeholders/` (sharp, AVIF + WebP). `npm run icon` regenera el ícono (monograma BO sobre night). `npm run logos` vectoriza los JPG de `assets/brand/` (potrace) hacia `src/components/brand/svg/` (SVG + `paths.ts` generado); correrlo de nuevo si cambian los originales y no editar `svg/` a mano.
 - Lighthouse (dev): `CHROME_PATH=/opt/pw-browsers/chromium npx lighthouse <url> --chrome-flags="--headless=new --no-sandbox"` contra `npm run start`.
 
 ## Mapa del código
 
+- `assets/brand/`: logo y monograma oficiales de la clienta en JPG (fuente de verdad hasta recibir los SVG oficiales). `src/components/brand/`: `Monogram` (`size` = ancho en px) y `Logo` (`width` o className), SVG inline con `currentColor`; footer y `/tokens` usan `Logo`, header y hero usan `Monogram`.
 - `src/styles/tokens.css`: única fuente de color, foco, movimiento y espaciado.
 - `src/app/globals.css`: Tailwind, `@theme inline`, utilidades tipográficas, grano y sunset.
 - `src/domain`: tipos, precios por etapa, cupones, validación de cédula/RUC, token QR firmado (con tests).

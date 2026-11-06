@@ -21,7 +21,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <header className="surface-dark absolute inset-x-0 top-0 z-30">
         <div className="container-editorial flex items-center justify-between py-4 md:py-6">
           <Link href="/" aria-label="THE BOND, inicio" className="inline-flex items-center gap-3 text-bond-butter">
-            <Monogram size={44} className="shrink-0" />
+            <Monogram size={56} className="shrink-0" />
             <span className="label-caps hidden text-bond-cream sm:inline">The Bond</span>
           </Link>
           <nav aria-label="Principal" className="flex items-center gap-5 sm:gap-8">

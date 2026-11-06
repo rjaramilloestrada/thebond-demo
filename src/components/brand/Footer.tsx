@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { nextEdition, pastEditions } from "@/domain/selectors";
 import { seed } from "@/seed/seed";
-import { Monogram } from "./Monogram";
+import { Logo } from "./Logo";
 
 export function Footer() {
   const { editions } = seed();
@@ -12,11 +12,10 @@ export function Footer() {
     <footer className="surface-dark bg-bond-night text-bond-cream">
       <div className="container-editorial flex flex-col gap-10 py-16 md:flex-row md:items-end md:justify-between">
         <div className="flex flex-col gap-6">
-          <Monogram size={64} className="text-bond-butter" />
+          <Logo width={224} className="text-bond-cream" />
           <p className="display-serif text-heading max-w-md leading-tight">
             See you in the next <span className="accent-italic text-bond-butter">bond.</span>
           </p>
-          <p className="label-caps text-bond-sand">The Bond · A wellness community</p>
         </div>
         <nav aria-label="Pie de página" className="flex flex-col gap-1 text-sm">
           <Link href="/" className={linkClass}>

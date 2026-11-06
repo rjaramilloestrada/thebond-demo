@@ -8,14 +8,14 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 
 | # | Pendiente | Origen | Dónde aparece |
 |---|---|---|---|
-| 1 | Logo y monograma BO en SVG, más colores y fuentes oficiales | Brief 10 | `src/components/brand/Monogram.tsx` (monograma tipográfico provisional), `src/styles/tokens.css` (paleta aproximada), `src/app/layout.tsx` (fuentes aproximadas), `/tokens` |
+| 1 | **Parcial.** Logo y monograma BO recibidos como JPG 1080×1080 (`assets/brand/`) y vectorizados por IGNIS (`npm run logos`, trazado con potrace). Siguen pendientes: archivos SVG vectoriales oficiales, fuentes oficiales y colores oficiales (el fondo del logo de la clienta mide `#5a5c44`, el token `--bond-olive` es `#5e6447`: Rafa decide si se ajusta) | Brief 10 | `src/components/brand/Monogram.tsx`, `src/components/brand/Logo.tsx`, `src/components/brand/svg/` (generado), `assets/brand/`, `src/styles/tokens.css` (paleta aproximada), `src/app/layout.tsx` (fuentes aproximadas), `/tokens` |
 | 2 | Fotos originales de la ed. 001 en alta resolución | Brief 10 | `public/placeholders/galeria-001-01…06` y `hero-edicion` (generados por `scripts/generate-placeholders.mjs`), `src/seed/seed.ts` |
 | 3 | Datos de la próxima edición: nombre confirmado, fecha, sede, aforo, precios por etapa y cronograma | Brief 10 | `src/seed/seed.ts` (ed. 002: `dateLabel`, `venueName`, `venueAddress`, `schedule`; aforo 60 de ejemplo; precios `$XX`) |
 | 4 | Permiso para mostrar los logos de las marcas aliadas | Brief 10 | `public/placeholders/logo-marca-*`, `src/seed/seed.ts` (`brands`) |
 | 5 | Política de reembolsos y términos | Brief 10 | `src/seed/seed.ts` (`faq` de la ed. 002: reembolsos, privacidad, términos) |
 | 6 | RUC y razón social (para la vista previa de la factura) | Brief 10 | Aún no se muestra (Fase 4). Las facturas semilla usan numeración `DEMO-000001` |
 | 7 | Dominio preferido | Brief 10 | No aparece en el código todavía (Fase 7, deploy) |
-| 8 | Confirmar fuentes oficiales y logo en SVG | Brief 3.2 | Duplica el #1; se muestra en `/tokens` (sección Tipografía) |
+| 8 | Confirmar fuentes oficiales y entregar el logo en SVG vectorial | Brief 3.2 | Duplica el #1 (el logo ya está integrado desde JPG vectorizado); se muestra en `/tokens` (sección Tipografía y Textura) |
 
 ## B. Nuevos pendientes detectados en la Fase 1
 
@@ -46,7 +46,7 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 |---|---|---|
 | 27 | Textos nuevos de interfaz redactados por IGNIS (no son frases del brief): bajada del hero del home ("THE BOND es la wellness community de Guayaquil: ediciones numeradas para moverte, conectar y pertenecer."), títulos de sección ("Elige tu entrada", "El cronograma", "La sede", "La galería", "Preguntas frecuentes", "Ediciones pasadas") y avisos. Confirmar tono con la clienta | `src/components/home/HomeHero.tsx`, `src/components/edition/EditionPage.tsx`, `Schedule.tsx`, `Venue.tsx`, `Gallery.tsx`, `Faq.tsx`, `src/components/home/Archive.tsx` |
 | 28 | Imagen Open Graph real para compartir (hoy se usa el placeholder `hero-edicion` / `galeria-001-01`) | `src/lib/site.ts` (`OG_IMAGE`), `src/app/layout.tsx`, `src/app/(public)/ediciones/[slug]/page.tsx` |
-| 29 | Ícono del sitio (favicon): hoy es un anillo provisional generado por `npm run icon`; falta el monograma BO oficial | `src/app/icon.png`, `scripts/generate-icon.mjs` |
+| 29 | Ícono del sitio (favicon): hoy se genera con `npm run icon` a partir del monograma BO vectorizado desde el JPG; falta regenerarlo con el SVG oficial | `src/app/icon.png`, `scripts/generate-icon.mjs` |
 | 30 | URL pública del sitio (`NEXT_PUBLIC_SITE_URL`): hasta tener el dominio (#7) canonical, sitemap y robots usan `http://localhost:3000` | `src/lib/site.ts`, `src/app/robots.ts`, `src/app/sitemap.ts` |
 | 31 | **Privacidad del demo en el deploy (Fase 7).** Por decisión de Rafa el código ya no lleva `noindex` y `robots.txt` permite el rastreo. Antes de compartir la URL con la clienta hay que proteger el acceso en el hosting (contraseña o acceso privado) o volver a poner `noindex` | `src/app/layout.tsx`, `src/app/robots.ts`, CLAUDE.md (regla 13) |
 | 32 | Selector de entradas deshabilitado: cantidad, cupón y "Continuar" se activan en la Fase 3 | `src/components/edition/TicketSelector.tsx` |
