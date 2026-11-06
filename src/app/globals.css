@@ -333,3 +333,27 @@ details[open] .details-plus {
     transition: none;
   }
 }
+
+/* Modal propio: <dialog> nativo con velo de marca */
+.modal-dialog::backdrop {
+  background: color-mix(in srgb, var(--bond-night) 78%, transparent);
+  animation: modal-fade var(--dur-base) var(--bond-ease) both;
+}
+.modal-dialog[open] {
+  animation: modal-fade var(--dur-base) var(--bond-ease) both;
+}
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* La etiqueta DEMO sube sobre la barra fija del checkout (hasta 1023 px) */
+@media (max-width: 63.99rem) {
+  body:has([data-checkout-bar]) .demo-badge {
+    transform: translate3d(0, -4.75rem, 0);
+  }
+}

@@ -1,12 +1,13 @@
 /*
  * THE BOND · tokens de diseño
  * ÚNICA fuente de color del proyecto. Valores aproximados tomados por
- * observación del feed (brief 3.1). Cuando lleguen los oficiales, se cambian
- * solo aquí. [[PENDIENTE: confirmar paleta oficial con los archivos de marca]]
+ * observación del feed (brief 3.1), salvo la oliva (#5a5c44), medida en el logo
+ * de la clienta (decisión de Rafa). Cuando lleguen los oficiales, se cambian
+ * solo aquí. [[PENDIENTE: confirmar el resto de la paleta con los archivos de marca]]
  */
 :root {
   /* Color de marca */
-  --bond-olive: #5e6447;
+  --bond-olive: #5a5c44;
   --bond-moss: #4f5a35;
   --bond-cream: #efe8da;
   --bond-sand: #d8c9ae;

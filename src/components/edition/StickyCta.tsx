@@ -3,39 +3,46 @@
 import { useEffect, useState } from "react";
 import { formatMoney } from "@/domain/pricing";
 import type { EditionLive } from "@/domain/selectors";
+import { selectionTotal, useSelectionStore } from "@/store/selection-store";
 import { useEditionLive } from "./useEditionLive";
+import { useReserve } from "./useReserve";
 
 /**
  * Barra fija inferior solo en móvil (brief 4.1: el CTA siempre a un pulgar).
- * Muestra precio "desde", cupos y "Get your ticket". Se oculta cuando la
- * sección #entradas (o el pie) está a la vista.
+ * Sin selección muestra precio "desde", cupos y "Get your ticket", y se oculta
+ * cuando la sección #entradas (o el pie) está a la vista. Con selección cambia a
+ * "N entradas · Continuar", que reserva los cupos, y se queda visible sobre
+ * #entradas para que el botón siempre esté al alcance del pulgar.
  */
-export function StickyCta({ initial }: { initial: EditionLive }) {
+export function StickyCta({ initial, editionId }: { initial: EditionLive; editionId: string }) {
   const live = useEditionLive(initial);
+  const quantity = useSelectionStore((s) => selectionTotal(s.quantities));
+  const reserving = useSelectionStore((s) => s.reserving);
+  const reserve = useReserve(editionId);
   const [covered, setCovered] = useState(false);
+  const [footerCovered, setFooterCovered] = useState(false);
 
   useEffect(() => {
-    const targets: Element[] = [];
     const entradas = document.getElementById("entradas");
     const footer = document.querySelector("footer");
-    if (entradas) targets.push(entradas);
-    if (footer) targets.push(footer);
-    if (targets.length === 0) return;
-    const inView = new Set<Element>();
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
-        if (e.isIntersecting) inView.add(e.target);
-        else inView.delete(e.target);
+        if (e.target === entradas) setCovered(e.isIntersecting);
+        else setFooterCovered(e.isIntersecting);
       }
-      setCovered(inView.size > 0);
     });
-    targets.forEach((t) => io.observe(t));
+    if (entradas) io.observe(entradas);
+    if (footer) io.observe(footer);
     return () => io.disconnect();
   }, []);
 
-  const visible = !covered;
+  const hasSelection = quantity > 0 && !live.soldOut;
+  const visible = hasSelection ? !footerCovered : !covered && !footerCovered;
   const price = live.fromPrice;
   const href = live.soldOut ? "#lista-de-espera" : "#entradas";
+
+  const buttonClass =
+    "label-caps inline-flex min-h-12 shrink-0 items-center gap-2 rounded-sm bg-bond-butter px-5 !text-[0.75rem] text-bond-night disabled:cursor-wait disabled:opacity-70";
 
   return (
     <div
@@ -52,6 +59,13 @@ export function StickyCta({ initial }: { initial: EditionLive }) {
         <div className="min-w-0">
           {live.soldOut ? (
             <p className="display-serif text-lg leading-tight">All spots taken</p>
+          ) : hasSelection ? (
+            <>
+              <p className="label-caps text-bond-sand">Tu selección</p>
+              <p className="font-display text-2xl leading-none" data-testid="sticky-count">
+                {quantity} {quantity === 1 ? "entrada" : "entradas"}
+              </p>
+            </>
           ) : (
             <>
               <p className="flex items-baseline gap-2">
@@ -67,13 +81,23 @@ export function StickyCta({ initial }: { initial: EditionLive }) {
             </>
           )}
         </div>
-        <a
-          href={href}
-          className="label-caps inline-flex min-h-12 shrink-0 items-center gap-2 rounded-sm bg-bond-butter px-5 !text-[0.75rem] text-bond-night"
-        >
-          {live.soldOut ? "Lista de espera" : "Get your ticket"}
-          <span aria-hidden>→</span>
-        </a>
+        {hasSelection ? (
+          <button
+            type="button"
+            data-testid="sticky-continuar"
+            disabled={reserving}
+            className={buttonClass}
+            onClick={() => void reserve()}
+          >
+            {reserving ? "Reservando…" : "Continuar"}
+            <span aria-hidden>→</span>
+          </button>
+        ) : (
+          <a href={href} className={buttonClass}>
+            {live.soldOut ? "Lista de espera" : "Get your ticket"}
+            <span aria-hidden>→</span>
+          </a>
+        )}
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ const PHRASES: string[][] = [
   ["Good energy,", "better company."],
 ];
 
-/** Manifiesto en líneas: display sans butter sobre olive (4.74, AA). */
+/** Manifiesto en líneas: display sans butter sobre olive (5.27, AA). */
 export function Manifesto() {
   return (
     <section aria-label="Manifiesto" className="surface-mid bg-bond-olive text-bond-butter">

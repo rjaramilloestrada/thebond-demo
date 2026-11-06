@@ -40,7 +40,7 @@ function CurrentEdition({ vm }: { vm: EditionViewModel }) {
         <Venue edition={edition} />
         <Faq faq={edition.faq} />
       </main>
-      <StickyCta initial={live} />
+      <StickyCta initial={live} editionId={edition.id} />
       <LiveSalesSimulator slug={edition.slug} />
     </>
   );

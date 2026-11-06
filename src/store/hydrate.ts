@@ -1,20 +1,27 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { useCheckoutDraftStore } from "./checkout-draft-store";
 import { useDbStore } from "./db-store";
 import { useDemoStore } from "./demo-store";
 
-/** Rehidrata ambos stores desde localStorage (o memoria). Llamar una vez, en el cliente. */
+/** Rehidrata los stores desde localStorage (o memoria). Llamar una vez, en el cliente. */
 export async function hydrateStores(): Promise<void> {
-  await Promise.all([useDbStore.persist.rehydrate(), useDemoStore.persist.rehydrate()]);
+  await Promise.all([
+    useDbStore.persist.rehydrate(),
+    useDemoStore.persist.rehydrate(),
+    useCheckoutDraftStore.persist.rehydrate(),
+  ]);
 }
 
 const subscribe = (cb: () => void) => {
   const a = useDbStore.subscribe(cb);
   const b = useDemoStore.subscribe(cb);
+  const c = useCheckoutDraftStore.subscribe(cb);
   return () => {
     a();
     b();
+    c();
   };
 };
 
@@ -22,7 +29,10 @@ const subscribe = (cb: () => void) => {
 export function useHasHydrated(): boolean {
   return useSyncExternalStore(
     subscribe,
-    () => useDbStore.getState().hasHydrated && useDemoStore.getState().hasHydrated,
+    () =>
+      useDbStore.getState().hasHydrated &&
+      useDemoStore.getState().hasHydrated &&
+      useCheckoutDraftStore.getState().hasHydrated,
     () => false,
   );
 }

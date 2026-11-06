@@ -6,7 +6,7 @@ export type Tone = "cream" | "sand" | "olive" | "moss" | "night";
 
 /**
  * Pares de color verificados (WCAG AA para texto chico):
- * cream: night 14.7, olive 5.1 · sand: night 11.0, moss 4.5 · olive: cream 5.1, butter 4.7
+ * cream: night 14.7, olive 5.65 · sand: night 11.0, moss 4.5 · olive: cream 5.65, butter 5.27 (sand sobre olive da 4.23: no usar en texto chico)
  * moss: cream 6.0, butter 5.6 · night: cream 14.7, butter 13.7, sand 11.0.
  * El acento itálico va en ember solo sobre cream y solo en tamaño grande (≥ 24 px).
  */

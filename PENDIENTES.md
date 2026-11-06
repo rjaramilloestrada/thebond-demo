@@ -8,7 +8,7 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 
 | # | Pendiente | Origen | Dónde aparece |
 |---|---|---|---|
-| 1 | **Parcial.** Logo y monograma BO recibidos como JPG 1080×1080 (`assets/brand/`) y vectorizados por IGNIS (`npm run logos`, trazado con potrace). Siguen pendientes: archivos SVG vectoriales oficiales, fuentes oficiales y colores oficiales (el fondo del logo de la clienta mide `#5a5c44`, el token `--bond-olive` es `#5e6447`: Rafa decide si se ajusta) | Brief 10 | `src/components/brand/Monogram.tsx`, `src/components/brand/Logo.tsx`, `src/components/brand/svg/` (generado), `assets/brand/`, `src/styles/tokens.css` (paleta aproximada), `src/app/layout.tsx` (fuentes aproximadas), `/tokens` |
+| 1 | **Parcial.** Logo y monograma BO recibidos como JPG 1080×1080 (`assets/brand/`) y vectorizados por IGNIS (`npm run logos`, trazado con potrace). Siguen pendientes: archivos SVG vectoriales oficiales, fuentes oficiales y el resto de la paleta oficial. **Oliva confirmada desde el logo (Fase 3, decisión de Rafa):** `--bond-olive` ahora es `#5a5c44` (antes `#5e6447`); moss, cream, sand, ember, sun, night y butter siguen siendo aproximados | Brief 10 | `src/components/brand/Monogram.tsx`, `src/components/brand/Logo.tsx`, `src/components/brand/svg/` (generado), `assets/brand/`, `src/styles/tokens.css` (paleta aproximada), `src/app/layout.tsx` (fuentes aproximadas), `/tokens` |
 | 2 | Fotos originales de la ed. 001 en alta resolución | Brief 10 | `public/placeholders/galeria-001-01…06` y `hero-edicion` (generados por `scripts/generate-placeholders.mjs`), `src/seed/seed.ts` |
 | 3 | Datos de la próxima edición: nombre confirmado, fecha, sede, aforo, precios por etapa y cronograma | Brief 10 | `src/seed/seed.ts` (ed. 002: `dateLabel`, `venueName`, `venueAddress`, `schedule`; aforo 60 de ejemplo; precios `$XX`) |
 | 4 | Permiso para mostrar los logos de las marcas aliadas | Brief 10 | `public/placeholders/logo-marca-*`, `src/seed/seed.ts` (`brands`) |
@@ -49,9 +49,21 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 | 29 | Ícono del sitio (favicon): hoy se genera con `npm run icon` a partir del monograma BO vectorizado desde el JPG; falta regenerarlo con el SVG oficial | `src/app/icon.png`, `scripts/generate-icon.mjs` |
 | 30 | URL pública del sitio (`NEXT_PUBLIC_SITE_URL`): hasta tener el dominio (#7) canonical, sitemap y robots usan `http://localhost:3000` | `src/lib/site.ts`, `src/app/robots.ts`, `src/app/sitemap.ts` |
 | 31 | **Privacidad del demo en el deploy (Fase 7).** Por decisión de Rafa el código ya no lleva `noindex` y `robots.txt` permite el rastreo. Antes de compartir la URL con la clienta hay que proteger el acceso en el hosting (contraseña o acceso privado) o volver a poner `noindex` | `src/app/layout.tsx`, `src/app/robots.ts`, CLAUDE.md (regla 13) |
-| 32 | Selector de entradas deshabilitado: cantidad, cupón y "Continuar" se activan en la Fase 3 | `src/components/edition/TicketSelector.tsx` |
+| 32 | ~~Selector de entradas deshabilitado~~ **Resuelto en la Fase 3:** cantidad, cupón y "Continuar" están activos | `src/components/edition/TicketSelector.tsx` |
 | 33 | El aviso a la lista de espera cuando se cancela una orden queda para la Fase 4; hoy el formulario solo guarda la entrada | `src/components/edition/WaitlistForm.tsx` |
 | 34 | Cronograma de la ed. 002: la fila sigue como `[[PENDIENTE: hora]]` / `[[PENDIENTE: cronograma de la ed. 002]]` (ya en #15) | `src/components/edition/Schedule.tsx` |
+
+## B3. Nuevos pendientes detectados en la Fase 3
+
+| # | Pendiente | Dónde aparece |
+|---|---|---|
+| 35 | Texto legal del checkout (términos, privacidad y reembolsos que se aceptan al pagar). Se muestra como `[[PENDIENTE]]` junto al botón de pago | `src/components/checkout/PaymentBox.tsx` |
+| 36 | Campos por asistente definitivos y obligatorios (hoy talla y nivel de ejemplo, ya en #20) y si cada asistente debe tener correo propio o basta el del comprador | `src/components/checkout/AttendeeForm.tsx`, `src/domain/checkout.ts` (`validateCheckoutForm`) |
+| 37 | Máximo de entradas por orden (hoy 4, valor de ejemplo del demo; se ve como "Máx. 4 por orden") | `src/seed/seed.ts` → `maxPerOrder`, `src/components/edition/TicketSelector.tsx` |
+| 38 | Regla de cambio de etapa dentro de una misma orden: hoy una orden no cruza etapas (solo puede comprar lo que queda en la etapa activa; al agotarla, la siguiente pasa a ser la activa). Confirmar con la clienta si prefiere otra regla | `src/domain/checkout.ts` (`availableForCounts`, `buildReservation`) |
+| 39 | Textos nuevos de interfaz del checkout redactados por IGNIS (titulares "Tus datos", "Caja de pagos", "You're in.", mensajes de error, aviso de reserva vencida, avisos de demo). Confirmar tono con la clienta | `src/components/checkout/*`, `src/components/edition/TicketSelector.tsx` |
+| 40 | Diseño final del ticket impreso (fecha y sede salen como `[[PENDIENTE]]` de la edición, ver #14; el monograma es el vectorizado, ver #1) y qué datos lleva el QR en producción | `src/components/checkout/PrintedTicket.tsx` |
+| 41 | "Ver correo" y "Ver factura" aparecen deshabilitados hasta la Fase 4 | `src/components/checkout/ConfirmationView.tsx` |
 
 ## C. Decisiones técnicas para Rafa (no son datos de la clienta)
 

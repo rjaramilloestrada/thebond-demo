@@ -19,6 +19,11 @@ Demo navegable (no es el producto final) del portal de entradas de THE BOND, wel
 13. **SEO y privacidad.** El sitio es indexable (sin `noindex`; hay `robots.ts` y `sitemap.ts`) por decisión de Rafa. La privacidad del demo se aplica en el deploy (Fase 7), con protección de acceso en el hosting; está registrado en `PENDIENTES.md` (#31). La URL base sale de `NEXT_PUBLIC_SITE_URL`.
 14. **Islas cliente.** Las páginas públicas son server components que renderizan con `seed()` (HTML estático, buen LCP). Lo vivo (contador de cupos, estado agotado, selector, lista de espera, barra fija) son islas cliente que usan `useHasHydrated()` y muestran el valor semilla antes de hidratar, sin saltos de layout. Las escrituras de negocio van por `src/adapters/index.ts`. Los titulares del hero usan `HeroLines` (CSS puro, para el LCP); debajo del pliegue, `RevealLines`.
 
+15. **Compra.** Las pantallas de compra (`/comprar/*`, `TicketSelector`, `StickyCta`) nunca escriben datos de negocio en el store: llaman a `src/services/checkout-service.ts` (`reserve`, `pay`, `expire`, `previewCoupon`), que orquesta los adapters de `src/adapters/index.ts`. La lógica pura (disponibilidad, reserva, vencimiento, validación, cierre de orden) vive en `src/domain/checkout.ts` con tests.
+16. **Borrador del checkout.** Lo escrito en datos se guarda por `orderId` en `src/store/checkout-draft-store.ts` (persistido con `safe-storage`); un pago rechazado o una recarga no lo pierden. El servicio lo limpia al pagar o al expirar. La selección en curso de la edición (`selection-store`) solo vive en memoria.
+17. **Modales.** Siempre con `src/components/ui/Modal.tsx` (`<dialog>` nativo: foco atrapado, Esc, `aria-modal`). Nunca `window.confirm`.
+18. **Rutas `/comprar/*`** son transaccionales y llevan `robots: noindex` desde su layout de servidor; el resto del sitio sigue indexable (regla 13).
+
 ## Stack
 
 Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS 4 (`@theme`, config CSS-first) · Zustand 5 (`persist` + `createJSONStorage`) · Motion (`motion/react`) · Lenis (`lenis/react`, solo sitio público) · qrcode · Vitest.
@@ -41,5 +46,8 @@ Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS 4 (
 - `src/seed/seed.ts`: datos semilla (ed. 001 real, ed. 002 con ejemplos rotulados).
 - `src/domain/selectors.ts`: lecturas puras (`soldCount`, `remainingSeats`, `isSoldOut`, `nextEdition`, `pastEditions`, `buildEditionViewModel`) y `live-sales.ts` (ventas en vivo simuladas).
 - `src/app/(public)`: home y `/ediciones/[slug]` (semilla estática; slugs nuevos se resuelven en el cliente con `DynamicEdition`).
-- `src/components/edition` y `src/components/home`: secciones del sitio público.
+- `src/components/edition` y `src/components/home`: secciones del sitio público. `src/components/checkout`: pantallas de datos, pago y confirmación (temporizador, formularios, ticket impreso, QR). `src/components/ui`: botones, campos accesibles y `Modal`.
+- `src/services/checkout-service.ts`: reserva, pago y vencimiento sobre los adapters. `src/domain/checkout.ts`: lógica pura del checkout.
+- `scripts/e2e-fase-3.mjs`: recorrido E2E de los criterios de Compra (Playwright, `BASE_URL=… node scripts/e2e-fase-3.mjs` contra `npm run start`). `scripts/capturas-fase-3.mjs`: capturas.
+- Pruebas con latencia 0: `configureLatency({min:0,max:0})` en tests, o `NEXT_PUBLIC_MOCK_LATENCY=0` en el build.
 - `/tokens`: página de sistema visual y diagnóstico de Fase 1.
