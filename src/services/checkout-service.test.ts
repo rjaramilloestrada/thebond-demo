@@ -126,7 +126,16 @@ describe("checkout-service · pago", () => {
     const invoice = (await storage.invoices.list()).find((i) => i.orderId === r.order.id);
     expect(invoice?.buyerTaxId).toBe(CEDULA_OK);
     const sent = (await storage.emails.list()).filter((e) => e.orderId === r.order.id && e.template === "ticket");
-    expect(sent.map((e) => e.to).sort()).toEqual(["asistente1@ejemplo.com", "asistente2@ejemplo.com", "asistente3@ejemplo.com"]);
+    // Quien compra recibe UN correo con las 3 entradas; cada asistente (otro correo) recibe el suyo
+    expect(sent.map((e) => e.to).sort()).toEqual([
+      "asistente1@ejemplo.com",
+      "asistente2@ejemplo.com",
+      "asistente3@ejemplo.com",
+      "comprador@ejemplo.com",
+    ]);
+    const buyerMail = sent.find((e) => e.to === "comprador@ejemplo.com");
+    expect(buyerMail?.ticketRefs?.map((t) => t.ticketId).sort()).toEqual(result.tickets.map((t) => t.id).sort());
+    expect(sent.filter((e) => e.to !== "comprador@ejemplo.com").every((e) => e.ticketRefs?.length === 1)).toBe(true);
   });
 
   it("rechazado: devuelve el error sin tocar la orden ni el borrador; al apagar el flag aprueba", async () => {

@@ -18,7 +18,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         Saltar al contenido
       </a>
       <SmoothScroll />
-      <header className="surface-dark absolute inset-x-0 top-0 z-30">
+      <header className="surface-dark absolute inset-x-0 top-[var(--demo-strip-h)] z-30 md:top-0 print:hidden">
         <div className="container-editorial flex items-center justify-between py-4 md:py-6">
           <Link href="/" aria-label="THE BOND, inicio" className="inline-flex items-center gap-3 text-bond-butter">
             <Monogram size={56} className="shrink-0" />

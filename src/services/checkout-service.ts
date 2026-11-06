@@ -163,8 +163,26 @@ async function runPay(orderId: ID, draft: CheckoutDraft): Promise<PayResult> {
     try {
       const invoice = await invoices.issue(paid, paid.taxId);
       if (invoice.ok) await storage.invoices.save(invoice.invoice);
+      // Quien compra recibe un correo con TODAS las entradas (un QR por asistente);
+      // cada asistente con otro correo recibe además el suyo, con su propio QR.
+      const refs = (ts: Ticket[]) => ts.map((t) => ({ ticketId: t.id, version: t.version, attendeeName: t.attendee.name }));
+      const buyerEmail = paid.buyer.email.toLowerCase();
+      await emails.send("ticket", paid.buyer.email, {
+        orderId: paid.id,
+        toName: paid.buyer.name,
+        ticketRefs: refs(tickets),
+      });
       await Promise.all(
-        tickets.map((t) => emails.send("ticket", t.attendee.email, { orderId: paid.id, ticketId: t.id })),
+        tickets
+          .filter((t) => t.attendee.email.toLowerCase() !== buyerEmail)
+          .map((t) =>
+            emails.send("ticket", t.attendee.email, {
+              orderId: paid.id,
+              ticketId: t.id,
+              toName: t.attendee.name,
+              ticketRefs: refs([t]),
+            }),
+          ),
       );
     } catch {
       // Son registros de demo: un fallo aquí no debe afectar la compra ya cobrada

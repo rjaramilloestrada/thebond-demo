@@ -49,7 +49,7 @@ export function EditionHero({ edition, live }: { edition: Edition; live: Edition
   return (
     <section
       aria-label={`${edition.title}, edición ${edition.number}`}
-      className="surface-dark grain relative isolate flex [--sun-x:55%] [--sun-y:24%] md:[--sun-x:66%] md:[--sun-y:40%] min-h-svh flex-col justify-end overflow-hidden bg-bond-night text-bond-cream"
+      className="surface-dark grain relative isolate -mt-[var(--demo-strip-h)] flex [--sun-x:55%] [--sun-y:24%] md:[--sun-x:66%] md:[--sun-y:40%] min-h-svh flex-col justify-end overflow-hidden bg-bond-night text-bond-cream"
     >
       <div className="sunset-sun" aria-hidden />
       <div className="hero-scrim absolute inset-0" aria-hidden />

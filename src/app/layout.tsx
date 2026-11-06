@@ -59,10 +59,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={`${bodoni.variable} ${archivo.variable} ${inter.variable}`}>
       <body>
+        <DemoBadge />
         <StoreHydrator />
         {children}
         <Footer />
-        <DemoBadge />
       </body>
     </html>
   );

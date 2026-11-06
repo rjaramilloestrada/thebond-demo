@@ -13,7 +13,7 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 | 3 | Datos de la próxima edición: nombre confirmado, fecha, sede, aforo, precios por etapa y cronograma | Brief 10 | `src/seed/seed.ts` (ed. 002: `dateLabel`, `venueName`, `venueAddress`, `schedule`; aforo 60 de ejemplo; precios `$XX`) |
 | 4 | Permiso para mostrar los logos de las marcas aliadas | Brief 10 | `public/placeholders/logo-marca-*`, `src/seed/seed.ts` (`brands`) |
 | 5 | Política de reembolsos y términos | Brief 10 | `src/seed/seed.ts` (`faq` de la ed. 002: reembolsos, privacidad, términos) |
-| 6 | RUC y razón social (para la vista previa de la factura) | Brief 10 | Aún no se muestra (Fase 4). Las facturas semilla usan numeración `DEMO-000001` |
+| 6 | RUC y razón social (para la vista previa de la factura) | Brief 10 | **Fase 4:** el RIDE de `/factura` muestra `[[PENDIENTE: RUC de la clienta]]` y `[[PENDIENTE: razón social de la clienta]]`. Las facturas usan numeración `DEMO-000001` |
 | 7 | Dominio preferido | Brief 10 | No aparece en el código todavía (Fase 7, deploy) |
 | 8 | Confirmar fuentes oficiales y entregar el logo en SVG vectorial | Brief 3.2 | Duplica el #1 (el logo ya está integrado desde JPG vectorizado); se muestra en `/tokens` (sección Tipografía y Textura) |
 
@@ -50,7 +50,7 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 | 30 | URL pública del sitio (`NEXT_PUBLIC_SITE_URL`): hasta tener el dominio (#7) canonical, sitemap y robots usan `http://localhost:3000` (el workflow de Pages la define con la URL de github.io) | `src/lib/site.ts`, `src/app/robots.ts`, `src/app/sitemap.ts` |
 | 31 | **Privacidad del demo.** GitHub Pages es público y no admite contraseña, así que el build de Pages lleva `noindex,nofollow` y `robots.txt` con `Disallow: /` (`NEXT_PUBLIC_NOINDEX=1`, solo en el workflow). Eso evita la indexación pero **no el acceso**: cualquiera con la URL puede verlo. Control de acceso real pendiente (hosting con contraseña o acceso privado) antes de compartir la URL fuera del círculo de la clienta. Local y Lighthouse siguen indexables por decisión de Rafa | `.github/workflows/pages.yml`, `src/lib/site.ts` (`NOINDEX`), `src/app/layout.tsx`, `src/app/robots.ts`, CLAUDE.md (reglas 13 y 20) |
 | 32 | ~~Selector de entradas deshabilitado~~ **Resuelto en la Fase 3:** cantidad, cupón y "Continuar" están activos | `src/components/edition/TicketSelector.tsx` |
-| 33 | El aviso a la lista de espera cuando se cancela una orden queda para la Fase 4; hoy el formulario solo guarda la entrada | `src/components/edition/WaitlistForm.tsx` |
+| 33 | ~~El aviso a la lista de espera al cancelar una orden queda para la Fase 4~~ **Resuelto en la Fase 4:** `order-service.cancelOrder` envía el correo `waitlist-available` y marca `notifiedAt` | `src/components/edition/WaitlistForm.tsx` |
 | 34 | Cronograma de la ed. 002: la fila sigue como `[[PENDIENTE: hora]]` / `[[PENDIENTE: cronograma de la ed. 002]]` (ya en #15) | `src/components/edition/Schedule.tsx` |
 
 ## B3. Nuevos pendientes detectados en la Fase 3
@@ -63,7 +63,20 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 | 38 | Regla de cambio de etapa dentro de una misma orden: hoy una orden no cruza etapas (solo puede comprar lo que queda en la etapa activa; al agotarla, la siguiente pasa a ser la activa). Confirmar con la clienta si prefiere otra regla | `src/domain/checkout.ts` (`availableForCounts`, `buildReservation`) |
 | 39 | Textos nuevos de interfaz del checkout redactados por IGNIS (titulares "Tus datos", "Caja de pagos", "You're in.", mensajes de error, aviso de reserva vencida, avisos de demo). Confirmar tono con la clienta | `src/components/checkout/*`, `src/components/edition/TicketSelector.tsx` |
 | 40 | Diseño final del ticket impreso (fecha y sede salen como `[[PENDIENTE]]` de la edición, ver #14; el monograma es el vectorizado, ver #1) y qué datos lleva el QR en producción | `src/components/checkout/PrintedTicket.tsx` |
-| 41 | "Ver correo" y "Ver factura" aparecen deshabilitados hasta la Fase 4 | `src/components/checkout/ConfirmationView.tsx` |
+| 41 | ~~"Ver correo" y "Ver factura" deshabilitados hasta la Fase 4~~ **Resuelto en la Fase 4:** abren `/correo?id=` y `/factura?id=`; se activan cuando el correo y la factura quedan registrados | `src/components/checkout/ConfirmationView.tsx` |
+
+## B4. Nuevos pendientes detectados en la Fase 4
+
+| # | Pendiente | Dónde aparece |
+|---|---|---|
+| 42 | Datos del emisor de la factura: RUC, razón social, dirección matriz y si la clienta está obligada a llevar contabilidad (ver #6). "THE BOND" figura como nombre comercial por ser la marca, no como dato tributario confirmado | `src/components/post-compra/InvoiceView.tsx` (RIDE) |
+| 43 | IVA: tarifa aplicable, si el precio publicado ya lo incluye (hoy el IVA y el total salen como `$XX`), códigos de producto y demás campos del RIDE según la ficha técnica del SRI. Número de autorización y clave de acceso reales llegan con la integración del SRI (hoy "DEMO · sin autorización") | `src/components/post-compra/InvoiceView.tsx` |
+| 44 | Textos de los correos (entrada, recordatorio, lista de espera, transferencia) y de "Mi entrada" redactados por IGNIS, no son frases del brief. Confirmar tono con la clienta | `src/emails/*.tsx`, `src/components/post-compra/*` |
+| 45 | Datos de contacto de la marca en el pie de los correos (`[[PENDIENTE: correo de contacto de THE BOND]]`) y "Cómo llegar": enlace al mapa, indicaciones y estacionamiento de la sede (ver #14 y #22) | `src/emails/parts.tsx` (`Shell`, `HowToGet`) |
+| 46 | Política de la lista de espera: cuánto tiempo se aparta el cupo avisado y si se avisa a una o a varias personas por cupo (hoy: una por cupo liberado, la más antigua primero, sin apartar el cupo) | `src/emails/waitlist-available.tsx`, `src/services/order-service.ts` |
+| 47 | Política de transferencias: plazo límite, si tiene costo, si se permite a una persona ya registrada y si el titular anterior debe confirmar. Hoy: libre hasta que la edición ocurra o la entrada ingrese | `src/domain/tickets.ts` (`checkTransfer`), `src/components/post-compra/TransferSection.tsx` |
+| 48 | Cuándo se envía el recordatorio "Tu bond es mañana" (hoy se genera al pedir la vista previa; en producción lo enviaría un proceso programado la víspera, ¿a qué hora?) | `src/services/ticket-service.ts` (`ensureReminder`) |
+| 49 | Imágenes en los correos reales: Gmail no muestra QR incrustados como `data:`; en producción el QR y el logo deben ir como imagen alojada (URL pública o CID). El logo ya sale de `public/email/*.png` con el dominio del sitio (depende de #7) | `src/services/preview-service.ts` (`qrDataUrl`), `src/emails/parts.tsx` |
 
 ## C. Decisiones técnicas para Rafa (no son datos de la clienta)
 
@@ -71,3 +84,7 @@ Leyenda: **Brief 10** = pendiente listado en la sección 10 del brief · **Brief
 - **Hosting de producción (pendiente de decisión).** El demo se publica ahora como export estático en GitHub Pages (`https://rjaramilloestrada.github.io/thebond-demo/`, workflow `.github/workflows/pages.yml`). El brief plantea Cloudflare: queda como decisión pendiente para producción (Workers vía `@opennextjs/cloudflare` o Pages). Con el export estático, las órdenes y las ediciones creadas en el wizard viajan por query param (`/comprar?orden=`, `/ediciones/ver?slug=`); si producción usa servidor, se pueden volver a rutas con ID. Se plantea formalmente en la Fase 7.
 - **GitHub Pages**: Rafa debe activar Settings → Pages → Build and deployment → Source: **GitHub Actions** (una sola vez) para que el workflow publique.
 - **html5-qrcode** (sin publicaciones desde abr-2023) y **xlsx 0.18.5** de npm (el CDN oficial de SheetJS no responde): se evalúan en las Fases 5 y 6.
+- **Colores de los correos (Fase 4).** Los clientes de correo no entienden variables CSS, así que `scripts/generate-email-theme.mjs` lee `src/styles/tokens.css` y escribe `generated/email-theme.json` con los ocho colores de marca (corre en `predev`, `prebuild` y `pretest`; un test falla si el JSON se desfasa). Ese JSON es la **única excepción documentada** a "ningún hex fuera de tokens.css"; ningún archivo de `src/` tiene hex.
+- **Etiqueta "DEMO" en móvil (Fase 4).** Para que nunca tape texto ni botones, en móvil es una franja de 28 px en el flujo, arriba de la página (y el encabezado baja esa altura); desde 768 px sigue siendo la etiqueta flotante abajo a la izquierda. Si Rafa prefiere la flotante, hay que resolver el choque con la barra fija de compra de otro modo.
+- **Prueba de la lista de espera (Fase 4).** Cancelar una orden no tiene pantalla hasta el `/admin` (Fase 5). El E2E ejecuta el `order-service` real dentro de la página (empaquetado con rolldown en un archivo temporal, no publicado) contra el mismo `localStorage`; el sitio no trae ganchos de pruebas.
+- **React Email (Fase 4).** `@react-email/components` 1.0.12 y `@react-email/render` 2.2.0 solo se descargan al abrir `/correo` (import dinámico).

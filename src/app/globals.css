@@ -273,14 +273,20 @@ html.lenis {
   scroll-behavior: auto;
 }
 
-/* La etiqueta DEMO sube sobre la barra fija de compra (solo móvil) */
+/*
+ * Etiqueta DEMO: en móvil es una franja en el flujo (alto --demo-strip-h) y el
+ * encabezado público baja esa altura; desde 768 px es una etiqueta fija.
+ */
+:root {
+  --demo-strip-h: 1.75rem;
+}
+@media (min-width: 48rem) {
+  :root {
+    --demo-strip-h: 0px;
+  }
+}
 .demo-badge {
   transition: transform var(--dur-base) var(--bond-ease);
-}
-@media (max-width: 47.99rem) {
-  body:has([data-sticky-cta][data-visible="true"]) .demo-badge {
-    transform: translate3d(0, -4.75rem, 0);
-  }
 }
 
 /* Marca del acordeón <details> */
@@ -351,9 +357,25 @@ details[open] .details-plus {
   }
 }
 
-/* La etiqueta DEMO sube sobre la barra fija del checkout (hasta 1023 px) */
-@media (max-width: 63.99rem) {
+/* Entre 768 y 1023 px la etiqueta fija sube sobre la barra del checkout */
+@media (min-width: 48rem) and (max-width: 63.99rem) {
   body:has([data-checkout-bar]) .demo-badge {
     transform: translate3d(0, -4.75rem, 0);
+  }
+}
+
+/*
+ * Impresión (RIDE de la factura): A4, sin fondos ni chrome del sitio. Lo que no
+ * debe imprimirse lleva `print:hidden` (encabezado, pie, etiqueta DEMO, barra).
+ */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+@media print {
+  html,
+  body {
+    background: transparent;
+    color: var(--bond-night);
   }
 }

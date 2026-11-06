@@ -370,18 +370,16 @@ async function c6ApprovedQr() {
   }
   check(ids.sort().join() === tickets.map((t) => t.id).sort().join(), "Los tokens deben corresponder a los tickets de la orden");
   check(order.taxId.kind === "ruc", "La orden debe guardar el RUC como tipo ruc");
-  // Ver correo / Ver factura: visibles y deshabilitados
+  // Ver correo / Ver factura: visibles (en la Fase 4 se activan al registrarse el correo y la factura)
   for (const id of ["ver-correo", "ver-factura"]) {
-    const b = page.locator(`[data-testid="${id}"]`);
-    check((await b.isVisible()) && (await b.isDisabled()), `${id} debe verse deshabilitado`);
+    check(await page.locator(`[data-testid="${id}"]`).isVisible(), `${id} debe estar visible`);
   }
-  check(/próxima fase/i.test(await page.locator("#proxima-fase").textContent()), "Debe explicar que llega en la próxima fase");
-  // Factura y correos quedan registrados (segundo plano)
+  // Factura y correos quedan registrados (segundo plano): 1 para quien compra con las 3 entradas + 1 por asistente
   await page.waitForTimeout(4000);
   const db2 = await readDb(page);
   const invoice = Object.values(db2.invoices).find((i) => i.orderId === order.id);
   const emailLogs = Object.values(db2.emails).filter((e) => e.orderId === order.id);
-  check(invoice && emailLogs.length === 3, `Factura/correos registrados: factura=${Boolean(invoice)}, correos=${emailLogs.length}`);
+  check(invoice && emailLogs.length === 4, `Factura/correos registrados: factura=${Boolean(invoice)}, correos=${emailLogs.length}`);
   await context.close();
   return `3 QR distintos decodificados → tokens válidos (${ids.join(", ")}); factura ${invoice.number}; ${emailLogs.length} correos registrados`;
 }

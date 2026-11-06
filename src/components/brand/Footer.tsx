@@ -9,7 +9,7 @@ export function Footer() {
   const past = pastEditions(editions);
   const linkClass = "inline-flex min-h-8 w-fit items-center underline-offset-4 hover:underline";
   return (
-    <footer className="surface-dark bg-bond-night text-bond-cream">
+    <footer className="surface-dark bg-bond-night text-bond-cream print:hidden">
       <div className="container-editorial flex flex-col gap-10 py-16 md:flex-row md:items-end md:justify-between">
         <div className="flex flex-col gap-6">
           <Logo width={224} className="text-bond-cream" />

@@ -241,6 +241,23 @@ export type EmailTemplate =
   | "refund"
   | "transfer";
 
+/** Referencia a una entrada tal como estaba al enviar el correo (id + versión del QR) */
+export interface TicketRef {
+  ticketId: ID;
+  version: number;
+  /** Asistente a quien se enviaba el QR (al transferir cambia, y el correo viejo no debe cambiar de nombre) */
+  attendeeName?: string;
+}
+
+/** Datos de una transferencia, para los dos correos que genera */
+export interface TransferInfo {
+  /** `new-holder`: recibe la entrada. `previous-holder`: se le avisa que ya no es suya. */
+  role: "new-holder" | "previous-holder";
+  fromName: string;
+  toName: string;
+  toEmail: string;
+}
+
 export interface EmailLog {
   id: ID;
   template: EmailTemplate;
@@ -249,6 +266,17 @@ export interface EmailLog {
   orderId: ID | null;
   ticketId: ID | null;
   sentAt: ISODate;
+  /** Nombre de quien recibe (saludo). Opcional: los correos semilla no lo traen. */
+  toName?: string;
+  /**
+   * Entradas incluidas (plantilla `ticket`), congeladas al enviar: así un correo
+   * viejo sigue mostrando el QR que se envió, aunque la entrada se haya transferido.
+   */
+  ticketRefs?: TicketRef[];
+  /** Entrada de la lista de espera avisada (plantilla `waitlist-available`) */
+  waitlistEntryId?: ID | null;
+  /** Solo en la plantilla `transfer` */
+  transfer?: TransferInfo | null;
 }
 
 /** Entidades persistidas en el store (normalizadas por id) */

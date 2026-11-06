@@ -1,12 +1,31 @@
 "use client";
 
+import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useState } from "react";
 import { Monogram } from "@/components/brand/Monogram";
 import { Pending } from "@/components/Pending";
+import { createTicketToken } from "@/domain/ticket-token";
 import type { Edition, Ticket, TicketType } from "@/domain/types";
+import { entryHref } from "@/lib/routes";
 import { TicketQr } from "./TicketQr";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+/** Token QR firmado de la versión vigente de la entrada (para enlazar a "Mi entrada"). */
+function useTicketToken(ticketId: string, version: number): string | null {
+  const [token, setToken] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void createTicketToken(ticketId, version).then((t) => {
+      if (!cancelled) setToken(t);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ticketId, version]);
+  return token;
+}
 
 /**
  * Ticket que se "imprime" (wow 4, brief 4.2). Cada entrada sale de la ranura de
@@ -28,6 +47,7 @@ export function PrintedTicket({
   total: number;
 }) {
   const reduce = useReducedMotion();
+  const token = useTicketToken(ticket.id, ticket.version);
   const delay = reduce ? 0 : 0.35 + index * 0.9;
   const duration = reduce ? 0.25 : 1.15;
   return (
@@ -74,6 +94,17 @@ export function PrintedTicket({
               {ticket.attendee.name}
             </p>
             <p className="mt-2 text-sm">{ticketType ? <Pending text={ticketType.name} /> : "Entrada"}</p>
+            <div className="mt-3 min-h-11">
+              {token && (
+                <Link
+                  href={entryHref(token)}
+                  data-testid="mi-entrada"
+                  className="label-caps inline-flex min-h-11 items-center text-bond-night underline underline-offset-4 hover:text-bond-moss"
+                >
+                  Mi entrada <span aria-hidden className="ml-2">→</span>
+                </Link>
+              )}
+            </div>
           </div>
           <TicketQr
             ticketId={ticket.id}

@@ -12,7 +12,9 @@ import { useReserve } from "./useReserve";
  * Sin selección muestra precio "desde", cupos y "Get your ticket", y se oculta
  * cuando la sección #entradas (o el pie) está a la vista. Con selección cambia a
  * "N entradas · Continuar", que reserva los cupos, y se queda visible sobre
- * #entradas para que el botón siempre esté al alcance del pulgar.
+ * #entradas para que el botón siempre esté al alcance del pulgar, salvo cuando
+ * el "Continuar" de la página (#continuar-inline) está en pantalla: nunca se ven
+ * dos "Continuar" a la vez.
  */
 export function StickyCta({ initial, editionId }: { initial: EditionLive; editionId: string }) {
   const live = useEditionLive(initial);
@@ -21,6 +23,7 @@ export function StickyCta({ initial, editionId }: { initial: EditionLive; editio
   const reserve = useReserve(editionId);
   const [covered, setCovered] = useState(false);
   const [footerCovered, setFooterCovered] = useState(false);
+  const [inlineVisible, setInlineVisible] = useState(false);
 
   useEffect(() => {
     const entradas = document.getElementById("entradas");
@@ -37,7 +40,20 @@ export function StickyCta({ initial, editionId }: { initial: EditionLive; editio
   }, []);
 
   const hasSelection = quantity > 0 && !live.soldOut;
-  const visible = hasSelection ? !footerCovered : !covered && !footerCovered;
+
+  // Con selección, el "Continuar" inline y el de la barra no se muestran juntos
+  useEffect(() => {
+    const inline = hasSelection ? document.getElementById("continuar-inline") : null;
+    if (!inline) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) setInlineVisible(e.isIntersecting);
+    });
+    io.observe(inline);
+    return () => io.disconnect();
+  }, [hasSelection]);
+
+  // `inlineVisible` solo vale mientras haya selección (si no, el botón inline no existe)
+  const visible = hasSelection ? !footerCovered && !inlineVisible : !covered && !footerCovered;
   const price = live.fromPrice;
   const href = live.soldOut ? "#lista-de-espera" : "#entradas";
 

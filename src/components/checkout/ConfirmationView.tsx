@@ -11,7 +11,8 @@ import { useHasHydrated } from "@/store/hydrate";
 import { OrderSummary } from "./OrderSummary";
 import { PrintedTicket } from "./PrintedTicket";
 import { buildSummary } from "./summary";
-import { checkoutHref, editionHref } from "@/lib/routes";
+import { checkoutHref, editionHref, emailHref, invoiceHref } from "@/lib/routes";
+import { ReminderButton } from "@/components/post-compra/ReminderButton";
 
 function Slot() {
   return (
@@ -23,9 +24,10 @@ function Slot() {
 
 /**
  * Confirmación (posterior al pago): un ticket por asistente con QR único que
- * sale de una ranura. "Ver correo" y "Ver factura" quedan visibles pero
- * deshabilitados hasta la Fase 4. Si la orden no está pagada, vuelve a
- * `/comprar?orden=<id>`.
+ * sale de una ranura, con enlace a "Mi entrada". "Ver correo", "Ver factura" y
+ * "Ver recordatorio" abren las vistas previas (el correo y la factura se
+ * registran en segundo plano tras el pago, así que los botones se activan
+ * cuando existen). Si la orden no está pagada, vuelve a `/comprar?orden=<id>`.
  */
 export function ConfirmationView({ orderId }: { orderId: string }) {
   const router = useRouter();
@@ -35,6 +37,8 @@ export function ConfirmationView({ orderId }: { orderId: string }) {
   const allTickets = useDbStore((s) => s.tickets);
   const allTicketTypes = useDbStore((s) => s.ticketTypes);
   const coupons = useDbStore((s) => s.coupons);
+  const allEmails = useDbStore((s) => s.emails);
+  const allInvoices = useDbStore((s) => s.invoices);
 
   const edition = order ? editions[order.editionId] : undefined;
   const tickets = useMemo(
@@ -58,6 +62,18 @@ export function ConfirmationView({ orderId }: { orderId: string }) {
       discountCents: coupon ? couponDiscountCents(coupon, order.subtotalCents) : order.discountCents,
     });
   }, [order, ticketTypes, coupons]);
+
+  // Correo con todas las entradas (el de quien compra) y factura de la orden, si ya se registraron
+  const buyerMail = useMemo(
+    () =>
+      order
+        ? Object.values(allEmails)
+            .filter((e) => e.template === "ticket" && e.orderId === orderId && e.to.toLowerCase() === order.buyer.email.toLowerCase())
+            .sort((a, b) => a.sentAt.localeCompare(b.sentAt))[0]
+        : undefined,
+    [allEmails, order, orderId],
+  );
+  const invoice = useMemo(() => Object.values(allInvoices).find((i) => i.orderId === orderId), [allInvoices, orderId]);
 
   const unpaid = hydrated && order && order.status !== "paid";
   useEffect(() => {
@@ -87,8 +103,10 @@ export function ConfirmationView({ orderId }: { orderId: string }) {
   }
 
   const shortCode = order.id.replace(/^ord-/, "").toUpperCase();
-  const disabledBtn =
-    "label-caps inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-sm border border-dashed border-bond-cream/70 px-6 text-bond-cream sm:w-auto";
+  const docBtn = `${buttonBase} ${buttonTones.outlineDark} w-full !min-h-12 !px-6 sm:w-auto`;
+  const waitingBtn =
+    "label-caps inline-flex min-h-12 w-full cursor-wait items-center justify-center rounded-sm border border-dashed border-bond-cream/70 px-6 text-bond-cream sm:w-auto";
+  const preparing = !buyerMail || !invoice;
 
   return (
     <main id="contenido" className={shell}>
@@ -123,17 +141,34 @@ export function ConfirmationView({ orderId }: { orderId: string }) {
         </div>
 
         <div className="mx-auto mt-14 grid max-w-xl gap-10">
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button type="button" disabled aria-describedby="proxima-fase" data-testid="ver-correo" className={disabledBtn}>
-              Ver correo
-            </button>
-            <button type="button" disabled aria-describedby="proxima-fase" data-testid="ver-factura" className={disabledBtn}>
-              Ver factura
-            </button>
+          <div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              {buyerMail ? (
+                <Link href={emailHref(buyerMail.id)} data-testid="ver-correo" className={docBtn}>
+                  Ver correo
+                </Link>
+              ) : (
+                <button type="button" disabled aria-describedby="preparando" data-testid="ver-correo" className={waitingBtn}>
+                  Ver correo
+                </button>
+              )}
+              {invoice ? (
+                <Link href={invoiceHref(invoice.id)} data-testid="ver-factura" className={docBtn}>
+                  Ver factura
+                </Link>
+              ) : (
+                <button type="button" disabled aria-describedby="preparando" data-testid="ver-factura" className={waitingBtn}>
+                  Ver factura
+                </button>
+              )}
+              <ReminderButton ticketId={tickets[0]?.id} className={docBtn} />
+            </div>
+            <p id="preparando" role="status" className="mt-4 text-sm text-bond-sand">
+              {preparing
+                ? "Estamos preparando tu correo y tu factura…"
+                : "Es un demo: el correo y la factura se muestran como vista previa, no se envían."}
+            </p>
           </div>
-          <p id="proxima-fase" className="-mt-6 text-sm text-bond-sand">
-            Disponible en la próxima fase del demo: vista previa del correo y de la factura electrónica.
-          </p>
           <div className="surface-dark">
             <OrderSummary data={summary} heading="Resumen de la orden" />
           </div>

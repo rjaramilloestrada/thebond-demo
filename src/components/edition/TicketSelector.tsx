@@ -371,6 +371,7 @@ export function TicketSelector({
             onClick={() => void reserve()}
             disabled={!ready || count === 0 || reserving}
             aria-describedby="continuar-aviso"
+            id="continuar-inline"
             data-testid="continuar"
             className={`${buttonBase} ${buttonTones.night} mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50`}
           >

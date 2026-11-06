@@ -10,7 +10,8 @@ type Status = "idle" | "saving" | "done" | "already";
 /**
  * Lista de espera (brief 6.3): "Avísame si se libera un cupo". Valida nombre y
  * correo, agrega la entrada vía `StorageAdapter` y muestra un estado de éxito.
- * El aviso al cancelar una orden llega en la Fase 4.
+ * El aviso lo manda `order-service.cancelOrder` al cancelar una orden (correo
+ * `waitlist-available` + `notifiedAt`, la más antigua primero).
  */
 export function WaitlistForm({ editionId, tone = "dark" }: { editionId: string; tone?: "dark" | "light" }) {
   const uid = useId();

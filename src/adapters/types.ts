@@ -17,7 +17,9 @@ import type {
   Order,
   TaxIdKind,
   Ticket,
+  TicketRef,
   TicketType,
+  TransferInfo,
   WaitlistEntry,
   Brand,
 } from "@/domain/types";
@@ -42,7 +44,12 @@ export interface PaymentAdapter {
 export interface EmailData {
   orderId?: ID;
   ticketId?: ID;
-  [key: string]: unknown;
+  /** Nombre de quien recibe el correo (saludo) */
+  toName?: string;
+  /** Entradas incluidas, con la versión del QR enviada */
+  ticketRefs?: TicketRef[];
+  waitlistEntryId?: ID;
+  transfer?: TransferInfo;
 }
 
 export interface EmailAdapter {
